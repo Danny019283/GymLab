@@ -33,9 +33,9 @@ public class Cliente {
     }
 
     // Constructor con todos los atributos
-    public Cliente(String cedula, String nombre, int telef, String correo,
+    public Cliente(String cedula, String nombre, int edad, int telef, String correo,
                    String fechaNac, String sexo, String fechaInscrip,
-                   int edad, Instructor instructor) {
+                    Instructor instructor) {
         this.cedula = cedula;
         this.nombre = nombre;
         this.telef = telef;
