@@ -14,7 +14,7 @@ public class Medicion {
     private float estatura;
     private float porcGrasa;
     private float porcMusculo;
-    private int edadMetabolica;
+    private double edadMetabolica;
     private float porcGrasaVis;
     private float cintura;
     private float pecho;
@@ -44,7 +44,7 @@ public class Medicion {
 
     // Constructor con todos los atributos
     public Medicion(Cliente cliente, float peso, float estatura, float porcGrasa,
-                    float porcMusculo, int edadMetabolica, float porcGrasaVis,
+                    float porcMusculo, double edadMetabolica, float porcGrasaVis,
                     float cintura, float pecho, float muslo, float imc,
                     String clasifImc, float recomAgua, float recomProte) {
         this.cliente = cliente;
@@ -79,8 +79,8 @@ public class Medicion {
     public float getPorcMusculo() { return porcMusculo; }
     public void setPorcMusculo(float porcMusculo) { this.porcMusculo = porcMusculo; }
 
-    public int getEdadMetabolica() { return edadMetabolica; }
-    public void setEdadMetabolica(int edadMetabolica) { this.edadMetabolica = edadMetabolica; }
+    public double getEdadMetabolica() { return edadMetabolica; }
+    public void setEdadMetabolica(double edadMetabolica) { this.edadMetabolica = edadMetabolica; }
 
     public float getPorcGrasaVis() { return porcGrasaVis; }
     public void setPorcGrasaVis(float porcGrasaVis) { this.porcGrasaVis = porcGrasaVis; }
@@ -106,6 +106,54 @@ public class Medicion {
     public float getRecomProte() { return recomProte; }
     public void setRecomProte(float recomProte) { this.recomProte = recomProte; }
 
+    public void calcularIMC() {
+        this.imc = this.peso / (this.estatura * this.estatura);
+    }
+
+    public void clasificarIMC() {
+        if (this.imc < 16) {
+            this.clasifImc = "Delgadez severa";
+        } else if (this.imc > 16.01 && this.imc < 16.99) {
+            this.clasifImc = "Delgadez moderada";
+        } else if (this.imc > 17.0 && this.imc < 18.49) {
+            this.clasifImc = "Delgadez leve";
+        } else if (this.imc > 18.5 && this.imc < 24.99) {
+            this.clasifImc = "Normal";
+        } else if (this.imc > 25.0 && this.imc < 29.99) {
+            this.clasifImc = "Preobesidad";
+        } else if (this.imc > 30.0 && this.imc < 34.99) {
+            this.clasifImc = "Obesidad leve";
+        } else if (this.imc > 35.0 && this.imc < 39.99) {
+            this.clasifImc = "Obesidad media";
+        } else  {
+            this.clasifImc = "Obesidad morbida";
+        }
+    }
+
+    public void calcEdadMetabolica(){
+        this.edadMetabolica = (10 * this.peso) + (6.25 * this.estatura) - (5 * this.cliente.getEdad());
+        if (this.cliente.getSexo().equals("Masculino")) {
+             this.edadMetabolica += 5;
+        }
+        else {
+            this.edadMetabolica -= 161;
+        }
+    }
+
+    public void calcCantVasosDeAguaDia(){
+        this.recomAgua = this.peso * 7;
+    }
+
+    public void calcCantProteinasDia(boolean haceEjercicio){
+        this.recomProte = 0.8f * this.peso;
+        if (this.cliente.getSexo().equals("Masculino") && haceEjercicio) {
+            this.recomProte += 2.1f * this.peso;
+        }
+        else if (this.cliente.getSexo().equals("Femenino") && haceEjercicio) {
+            this.recomProte += 1.7f * this.peso;
+        }
+    }
+
     @Override
     public String toString() {
         return "Medicion{" +
@@ -120,7 +168,7 @@ public class Medicion {
                 ", pecho=" + pecho +
                 ", muslo=" + muslo +
                 ", imc=" + imc +
-                ", clasifImc='" + clasifImc + '\'' +
+                ", clasifImc='" + clasifImc +
                 ", recomAgua=" + recomAgua +
                 ", recomProte=" + recomProte +
                 '}';
