@@ -1,9 +1,4 @@
-package Vista;
-
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+//package Vista;
 
 
 import java.util.ArrayList;
@@ -16,6 +11,7 @@ import Modelo.Cliente;
  *
  * @author Danny
  */
+/*
 public class TablaCliente extends AbstractTableModel{
     private final String[] cols = {"Cedula", "Nombre", "Telefono", "Correo", "Fecha de Nacimiento",
             "Sexo", "Fecha de inscripción", "Edad", "Instructor"}; //crea las colummnas
@@ -79,3 +75,4 @@ public class TablaCliente extends AbstractTableModel{
 
 }
 
+*/

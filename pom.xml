@@ -11,4 +11,12 @@
         <exec.mainClass>com.mycompany.proyecto1.Proyecto1</exec.mainClass>
     </properties>
     <name>Proyecto1GymLab</name>
+    <dependencies>
+        <dependency>
+            <groupId>com.oracle.database.jdbc</groupId>
+            <artifactId>ojdbc8-production</artifactId>
+            <version>19.18.0.0</version>
+            <type>pom</type>
+        </dependency>
+    </dependencies>
 </project>

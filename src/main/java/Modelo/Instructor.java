@@ -19,7 +19,7 @@ public class Instructor {
     private int telef;
     private String correo;
     private String fechaNac;
-    private List<String> especialidad;
+    private String especialidad;
 
     // Constructor vacío
     public Instructor() {
@@ -28,18 +28,21 @@ public class Instructor {
         this.telef = 0;
         this.correo = "";
         this.fechaNac = "";
-        this.especialidad = new ArrayList<>();
+        this.especialidad = "";
     }
 
     // Constructor con todos los atributos
     public Instructor(String cedula, String nombreCom, int telef, String correo,
-                      String fechaNac, List<String> especialidad) {
+                      String fechaNac, String especialidad) {
         this.cedula = cedula;
         this.nombreCom = nombreCom;
         this.telef = telef;
         this.correo = correo;
         this.fechaNac = fechaNac;
-        this.especialidad = especialidad != null ? especialidad : new ArrayList<>();
+        this.especialidad = especialidad;
+    }
+
+    public Instructor(String cedula, String nombrecom, Object o) {
     }
 
     // Getters y Setters
@@ -58,8 +61,8 @@ public class Instructor {
     public String getFechaNac() { return fechaNac; }
     public void setFechaNac(String fechaNac) { this.fechaNac = fechaNac; }
 
-    public List<String> getEspecialidad() { return especialidad; }
-    public void setEspecialidad(List<String> especialidad) { this.especialidad = especialidad; }
+    public String getEspecialidad() { return especialidad; }
+    public void setEspecialidad(String especialidad) { this.especialidad = especialidad; }
 
     @Override
     public String toString() {
