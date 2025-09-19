@@ -14,8 +14,6 @@ public class VistaCliente extends JFrame {
 
     }
 
-
-
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             VistaCliente vista = new VistaCliente();

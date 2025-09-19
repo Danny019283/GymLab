@@ -1,4 +1,6 @@
 package Controlador;
+import AccesoADatos.GlobalException;
+import AccesoADatos.NoDataException;
 import Modelo.Cliente;
 import AccesoADatos.ServicioCliente;
 import Modelo.Instructor;
@@ -16,11 +18,27 @@ public class ControladorCliente {
 
     public boolean registrarCliente(String cedula, String nombre, int telefono, String correo, String fechaNac,
                      String sexo, String fechaInscrip, int edad, Instructor instructor){
-        Cliente c = new Cliente(cedula, nombre, edad, telefono, correo, fechaNac, sexo, fechaInscrip, instructor);
-        //servicioCliente.insertarCliente(c);
-        return false;
+
+        Cliente cliente = new Cliente.Builder()
+                .cedula(cedula)
+                .nombre(nombre)
+                .telefono(telefono)
+                .correo(correo)
+                .fechaNac(fechaNac)
+                .sexo(sexo)
+                .fechaInscrip(fechaInscrip)
+                .edad(edad)
+                .instructor(instructor)
+                .build();
+        try{
+            servicioCliente.insertarCliente(cliente);
+            return true;
+        }catch(GlobalException | NoDataException e){
+            throw  new RuntimeException(e);
+        }
     }
 
+    /*
     public boolean modificarCliente(String cedula, String nombre, int telefono, String correo, String fechaNac,
                      String sexo, String fechaInscrip, int edad, Instructor instructor){
         Cliente c = new Cliente(cedula, nombre, edad, telefono, correo, fechaNac, sexo, fechaInscrip, instructor);
@@ -30,7 +48,7 @@ public class ControladorCliente {
     public  boolean eliminarCliente(String cedula){
         return servicioCliente.eliminarCliente(cedula);
     }
-    /*
+
     public boolean mostrarPagina(int inicio, int fin, int pagina){
         servicioCliente.getPagina(inicio, fin, pagina);
         return true;
