@@ -33,6 +33,43 @@ public class Sucursal {
         this.telef = telef;
     }
 
+    public static class Builder {
+        private String cod = "";
+        private String provi = "";
+        private String canton = "";
+        private String correo = "";
+        private int telef = 0;
+
+        public Builder cod(String cod) {
+            this.cod = cod;
+            return this;
+        }
+
+        public Builder provi(String provi) {
+            this.provi = provi;
+            return this;
+        }
+
+        public Builder canton(String canton) {
+            this.canton = canton;
+            return this;
+        }
+
+        public Builder correo(String correo) {
+            this.correo = correo;
+            return this;
+        }
+
+        public Builder telef(int telef) {
+            this.telef = telef;
+            return this;
+        }
+
+        public Sucursal build() {
+            return new Sucursal(cod, provi, canton, correo, telef);
+        }
+    }
+
     // Getters y Setters
     public String getCod() { return cod; }
     public void setCod(String cod) { this.cod = cod; }

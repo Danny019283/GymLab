@@ -16,7 +16,7 @@ public class ServicioSucursal extends Servicio {
     private static final String buscarSucursal = "{?=call buscarSucursal(?)}";
     private static final String listarSucursales = "{?= call listarSucursal()}";
 
-    ServicioSucursal() {}
+    public ServicioSucursal() {}
 
     public void insertarSucursal(Sucursal sucursal) throws GlobalException, NoDataException {
         conectar();

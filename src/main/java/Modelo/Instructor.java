@@ -17,7 +17,7 @@ public class Instructor {
     private int telef;
     private String correo;
     private String fechaNac;
-    private String codigo_sucursal;
+    private String codigoSucursal;
     private ArrayList<String> especialidad;
 
     // Constructor vacío
@@ -27,19 +27,20 @@ public class Instructor {
         this.telef = 0;
         this.correo = "";
         this.fechaNac = "";
-
+        this.codigoSucursal = "";
         this.especialidad = new ArrayList<>();
     }
 
     // Constructor con todos los atributos
     public Instructor(String cedula, String nombreCom, int telef, String correo,
-                      String fechaNac, ArrayList<String> especialidad) {
+                      String fechaNac, ArrayList<String> especialidad, String CodigoSucursal) {
         this.cedula = cedula;
         this.nombreCom = nombreCom;
         this.telef = telef;
         this.correo = correo;
         this.fechaNac = fechaNac;
         this.especialidad = especialidad;
+        this.codigoSucursal = CodigoSucursal;
     }
 
     //constructor con builder
@@ -50,6 +51,7 @@ public class Instructor {
         this.correo = builder.correo;
         this.fechaNac = builder.fechaNac;
         this.especialidad = new ArrayList<>();
+        this.codigoSucursal = builder.codigoSucursal;
     }
 
 
@@ -60,6 +62,7 @@ public class Instructor {
         private String correo;
         private String fechaNac;
         private ArrayList<String> especialidad;
+        private String codigoSucursal;
 
         public Builder cedula(String cedula) {
             this.cedula = cedula;
@@ -91,8 +94,13 @@ public class Instructor {
             return this;
         }
 
+        public Builder codigoSucursal(String codigoSucursal) {
+            this.codigoSucursal = codigoSucursal;
+            return this;
+        }
+
         public Instructor build() {
-            return new Instructor(cedula, nombreCom, telef, correo, fechaNac, especialidad);
+            return new Instructor(cedula, nombreCom, telef, correo, fechaNac, especialidad, codigoSucursal);
         }
     }
 
@@ -115,6 +123,9 @@ public class Instructor {
     public ArrayList<String> getEspecialidad() { return especialidad; }
     public void setEspecialidad(ArrayList<String> especialidad) { this.especialidad = especialidad; }
 
+    public String getCodigoSucursal() { return codigoSucursal; }
+    public void setCodigoSucursal(String codigoSucursal) { this.codigoSucursal = codigoSucursal; }
+
     @Override
     public String toString() {
         return "Instructor{" +
@@ -124,6 +135,7 @@ public class Instructor {
                 ", correo='" + correo + '\'' +
                 ", fechaNac='" + fechaNac + '\'' +
                 ", especialidad=" + especialidad +
+                "codigo de sucursal: " + codigoSucursal +
                 '}';
     }
 }

@@ -4,12 +4,11 @@ import Modelo.Cliente;
 import Modelo.ClaseGrupal;
 import oracle.jdbc.internal.OracleTypes;
 import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class ServicioClaseClientes extends Servicio {
+public class ServicioRegistroClases extends Servicio {
 
     private static final String insertarClaseCliente = "{call insertarClaseCliente(?, ?)}";
     private static final String eliminarClaseCliente = "{call eliminarClaseCliente(?, ?)}";
@@ -18,7 +17,7 @@ public class ServicioClaseClientes extends Servicio {
     private static final String verificarCupoClase = "{?=call verificarCupoClase(?)}";
     private static final String verificarClasesCliente = "{?=call verificarClasesCliente(?)}";
 
-    public ServicioClaseClientes() {}
+    public ServicioRegistroClases() {}
 
     public void insertarClaseCliente(String codigoClase, String cedulaCliente) throws GlobalException, NoDataException {
         conectar();
@@ -78,7 +77,7 @@ public class ServicioClaseClientes extends Servicio {
         }
     }
 
-    public ArrayList<ClaseGrupal> buscarClasesPorCliente(String cedulaCliente) throws GlobalException {
+    public ArrayList<ClaseGrupal> buscarClasesDeUnCliente(String cedulaCliente) throws GlobalException {
         conectar();
         ResultSet rs = null;
         ArrayList<ClaseGrupal> clases = new ArrayList<>();
@@ -93,9 +92,9 @@ public class ServicioClaseClientes extends Servicio {
             rs = (ResultSet) pstmt.getObject(1);
             while (rs.next()) {
                 clases.add(new ClaseGrupal(
-                        rs.getString("codigo"),
-                        rs.getInt("cupo_max"),
-                        rs.getInt("num_salon"),
+                        rs.getString("codigo_clase"),
+                        rs.getInt("cupoMax"),
+                        rs.getInt("numSalon"),
                         rs.getString("especialidad"),
                         rs.getString("horario"),
                         null // Instructor no se carga en esta consulta
@@ -215,7 +214,7 @@ public class ServicioClaseClientes extends Servicio {
     }
 
     public static void main(String[] args) {
-        ServicioClaseClientes scc = new ServicioClaseClientes();
+        ServicioRegistroClases scc = new ServicioRegistroClases();
 
         try {
             // Verificar cupo de una clase
@@ -227,7 +226,7 @@ public class ServicioClaseClientes extends Servicio {
             System.out.println("Clases inscritas: " + clasesCliente);
 
             // Buscar clases de un cliente
-            ArrayList<ClaseGrupal> clases = scc.buscarClasesPorCliente("1234567890");
+            ArrayList<ClaseGrupal> clases = scc.buscarClasesDeUnCliente("1234567890");
             System.out.println("Clases del cliente: " + clases);
 
         } catch (GlobalException e) {

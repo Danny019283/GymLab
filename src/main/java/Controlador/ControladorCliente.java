@@ -1,8 +1,6 @@
 package Controlador;
-import AccesoADatos.GlobalException;
-import AccesoADatos.NoDataException;
+import AccesoADatos.*;
 import Modelo.Cliente;
-import AccesoADatos.ServicioCliente;
 import Modelo.Instructor;
 import Modelo.Sucursal;
 import Vista.VistaCliente;
@@ -70,15 +68,60 @@ public class ControladorCliente {
         return servicioCliente.buscarCliente(cedula);
     }
 
-    public void mostrarClientes() throws GlobalException {
-        //vistaCliente.mostrarClientes(servicioCliente.listarClientes());
-        return;
+    public String mostrarClientes() throws GlobalException, NoDataException {
+        return servicioCliente.listarClientes();
     }
 
     public String mostrarClientesPorInstructor(String cedulaInstructor) throws GlobalException {
-        //return vistaCliente.mostrarClientesPorInstructor(servicioCliente.listarClientesPorInstructor(cedulaInstructor));
-        return "";
+        return servicioCliente.listarClientesPorInstructor(cedulaInstructor);
     }
+    //main
+    public static void main(String[] args) {
+        //testing
+        try {
+            // Crear servicios
+            ServicioCliente servicioCliente = new ServicioCliente();
+            ServicioSucursal servicioSucursal = new ServicioSucursal();
+            ServicioInstructor servicioInstructor = new ServicioInstructor();
 
+            // Instanciar controlador (vista ignorada -> null)
+            ControladorCliente controlador = new ControladorCliente(servicioCliente, null);
 
+            // Traer sucursal existente desde la BD
+            Sucursal sucursal = servicioSucursal.buscarSucursal("S001");
+
+            // Traer instructor existente desde la BD
+            Instructor instructor = servicioInstructor.buscarInstructor("123456789");
+
+            // Registrar cliente con los objetos obtenidos de la BD
+            /*
+            boolean ok = controlador.registrarCliente(
+                    "C001",                // cedula cliente
+                    "Ana Rodríguez",       // nombre cliente
+                    99998888,              // telefono
+                    "ana.rodriguez@correo.com", // correo
+                    "1990-03-15",          // fecha nacimiento
+                    "F",                   // sexo
+                    "2025-09-21",          // fecha inscripción
+                    35,                    // edad
+                    instructor,            // traído de la BD
+                    sucursal               // traído de la BD
+            );
+
+            if (ok) {
+                System.out.println("Cliente registrado correctamentE");
+            }*/
+
+            // Verificar consulta
+            System.out.println("chamoy");
+            Cliente cliente = controlador.buscarCliente("C001");
+            System.out.println("Cliente encontrado: " + cliente.getNombre());
+
+        } catch (GlobalException e) {
+            System.err.println("Error global: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Error inesperado: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 }

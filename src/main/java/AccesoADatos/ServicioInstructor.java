@@ -10,8 +10,8 @@ import java.util.List;
 
 public class ServicioInstructor extends Servicio {
 
-    public static final String insertarInstructor = "{call insertar_instructor(?, ?, ?, ?, ?, ?)}";
-    public static final String actualizarInstructor = "{call actualizar_instructor(?, ?, ?, ?, ?, ?)}";
+    public static final String insertarInstructor = "{call insertar_instructor(?, ?, ?, ?, ?, ?, ?)}";
+    public static final String actualizarInstructor = "{call actualizar_instructor(?, ?, ?, ?, ?, ?, ?)}";
     public static final String eliminarInstructor = "{call eliminar_instructor(?)}";
     public static final String buscarInstructor = "{? = call buscar_instructor(?)}";
     public static final String listarInstructores = "{? = call listar_instructores()}";
@@ -37,7 +37,8 @@ public class ServicioInstructor extends Servicio {
             pstmt.setInt(3, instructor.getTelef());
             pstmt.setString(4, instructor.getCorreo());
             pstmt.setString(5, instructor.getFechaNac());
-            pstmt.setArray(6, arrayEspecialidades);
+            pstmt.setString(6, instructor.getCodigoSucursal());
+            pstmt.setArray(7, arrayEspecialidades);
 
             pstmt.execute();
 
@@ -72,7 +73,9 @@ public class ServicioInstructor extends Servicio {
             pstmt.setInt(3, instructor.getTelef());
             pstmt.setString(4, instructor.getCorreo());
             pstmt.setString(5, instructor.getFechaNac());
-            pstmt.setArray(6, arrayEspecialidades);
+            pstmt.setString(6, instructor.getCodigoSucursal());
+            pstmt.setArray(7, arrayEspecialidades);
+
 
             int resultado = pstmt.executeUpdate();
 
@@ -141,11 +144,11 @@ public class ServicioInstructor extends Servicio {
                 int telefono = rs.getInt("telefono");
                 String correo = rs.getString("correo");
                 String fechaNac = rs.getString("fechaNac");
-
                 // Obtener especialidades como ArrayList
                 ArrayList<String> especialidades = obtenerEspecialidadesComoArrayList(cedula);
+                String codSucursal = rs.getString("cod_sucursal");
 
-                instructor = new Instructor(cedulaInstructor, nombre, telefono, correo, fechaNac, especialidades);
+                instructor = new Instructor(cedulaInstructor, nombre, telefono, correo, fechaNac, especialidades, codSucursal);
             }
 
         } catch (SQLException e) {
@@ -216,11 +219,11 @@ public class ServicioInstructor extends Servicio {
                 int telefono = rs.getInt("telefono");
                 String correo = rs.getString("correo");
                 String fechaNac = rs.getString("fechaNac");
-
                 // Obtener especialidades para cada instructor
                 ArrayList<String> especialidades = obtenerEspecialidadesComoArrayList(cedula);
+                String codSucursal = rs.getString("codigo_sucursal");
 
-                Instructor instructor = new Instructor(cedula, nombre, telefono, correo, fechaNac, especialidades);
+                Instructor instructor = new Instructor(cedula, nombre, telefono, correo, fechaNac, especialidades, codSucursal);
                 instructores.add(instructor);
             }
 
@@ -237,27 +240,5 @@ public class ServicioInstructor extends Servicio {
             }
         }
         return instructores;
-    }
-
-    // main modificado para usar ArrayList
-    public static void main(String[] args) {
-        ServicioInstructor si = new ServicioInstructor();
-        System.out.println("Conexion");
-        try {
-            // Crear ArrayList de especialidades
-            ArrayList<String> especialidades = new ArrayList<>();
-            especialidades.add("yoga");
-            especialidades.add("pilates");
-            especialidades.add("fitness");
-
-            Instructor instructor = new Instructor("124", "Juan Perez", 12345678,
-                    "juanca@gmail.com", "19/01/2002", especialidades);
-
-            si.insertarInstructor(instructor);
-            System.out.println("Instructor insertado correctamente");
-
-        } catch (GlobalException | NoDataException e) {
-            e.printStackTrace();
-        }
     }
 }

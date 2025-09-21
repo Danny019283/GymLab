@@ -3,6 +3,7 @@ import Modelo.Cliente;
 import Modelo.Instructor;
 
 
+import Modelo.Sucursal;
 import oracle.jdbc.internal.OracleTypes;
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
@@ -19,7 +20,7 @@ public class ServicioCliente extends Servicio {
     private static final String listarClientes = "{?= call listarclientes()}";
     private static final String listarClientesPorInstructor = "{?= call listarclientesinstructor(?)}";
 
-    ServicioCliente() {}
+    public ServicioCliente() {}
 
     public void insertarCliente(Cliente cliente) throws GlobalException, NoDataException {
         conectar();
@@ -129,7 +130,6 @@ public class ServicioCliente extends Servicio {
 
         ResultSet rs = null;
         Cliente cliente = null;
-        ServicioInstructor servicioIns = new ServicioInstructor();
         CallableStatement pstmt = null;
         try {
             pstmt = conexion.prepareCall(buscarCliente);
@@ -148,9 +148,11 @@ public class ServicioCliente extends Servicio {
                         .fechaInscrip(rs.getString("fechainscrip"))
                         .edad(rs.getInt("edad"))
                         .instructor(new Instructor.Builder()
-                                .cedula(rs.getString("instructor_cedula"))
-                                .build()
-                        )
+                                .cedula(rs.getString("cedula_instructor"))
+                                .build())
+                        .sucursal(new Sucursal.Builder()
+                                .cod(rs.getString("cod_sucursal"))
+                                .build())
                         .build();
             }
         } catch (SQLException e) {
@@ -210,6 +212,9 @@ public class ServicioCliente extends Servicio {
                                 .cedula(rs.getString("instructor_cedula"))
                                 .build()
                         )
+                        .sucursal(new Sucursal.Builder()
+                                .cod(rs.getString("cod_sucursal"))
+                                .build())
                         .build());
             }
         } catch (SQLException e) {
@@ -262,6 +267,9 @@ public class ServicioCliente extends Servicio {
                                     .cedula(rs.getString("instructor_cedula"))
                                     .build()
                             )
+                            .sucursal(new Sucursal.Builder()
+                                    .cod(rs.getString("cod_instructor"))
+                                    .build())
                             .build());
                 }
             } catch (SQLException e) {
@@ -284,27 +292,6 @@ public class ServicioCliente extends Servicio {
             return "No hay datos";
         }
         return clientes.toString();
-    }
-
-    public static void main(String[] args) {
-        ServicioCliente sc = new ServicioCliente();
-        ServicioInstructor si = new ServicioInstructor();
-        Instructor instructor = null;
-        try{
-            instructor = si.buscarInstructor("124");
-        } catch (GlobalException e) {
-            throw new RuntimeException(e);
-        }
-        Cliente c = new Cliente.Builder()
-                .cedula("1234567890")
-                .nombre("Juan Perez")
-                .telefono(123456789)
-                .correo("hola").build();
-        try {
-            sc.insertarCliente(c);
-        } catch (GlobalException | NoDataException e) {
-            throw new RuntimeException(e);
-        }
     }
 
 }
