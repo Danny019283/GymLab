@@ -8,9 +8,7 @@ package Modelo;
  *
  * @author Danny
  */
-import java.util.List;
 
-import java.util.List;
 import java.util.ArrayList;
 
 public class Instructor {
@@ -19,7 +17,8 @@ public class Instructor {
     private int telef;
     private String correo;
     private String fechaNac;
-    private String especialidad;
+    private String codigo_sucursal;
+    private ArrayList<String> especialidad;
 
     // Constructor vacío
     public Instructor() {
@@ -28,12 +27,13 @@ public class Instructor {
         this.telef = 0;
         this.correo = "";
         this.fechaNac = "";
-        this.especialidad = "";
+
+        this.especialidad = new ArrayList<>();
     }
 
     // Constructor con todos los atributos
     public Instructor(String cedula, String nombreCom, int telef, String correo,
-                      String fechaNac, String especialidad) {
+                      String fechaNac, ArrayList<String> especialidad) {
         this.cedula = cedula;
         this.nombreCom = nombreCom;
         this.telef = telef;
@@ -49,7 +49,7 @@ public class Instructor {
         this.telef = builder.telef;
         this.correo = builder.correo;
         this.fechaNac = builder.fechaNac;
-        this.especialidad = builder.especialidad;
+        this.especialidad = new ArrayList<>();
     }
 
 
@@ -59,7 +59,7 @@ public class Instructor {
         private int telef;
         private String correo;
         private String fechaNac;
-        private String especialidad;
+        private ArrayList<String> especialidad;
 
         public Builder cedula(String cedula) {
             this.cedula = cedula;
@@ -86,7 +86,7 @@ public class Instructor {
             return this;
         }
 
-        public Builder especialidad(String especialidad) {
+        public Builder especialidad(ArrayList<String> especialidad) {
             this.especialidad = especialidad;
             return this;
         }
@@ -112,8 +112,8 @@ public class Instructor {
     public String getFechaNac() { return fechaNac; }
     public void setFechaNac(String fechaNac) { this.fechaNac = fechaNac; }
 
-    public String getEspecialidad() { return especialidad; }
-    public void setEspecialidad(String especialidad) { this.especialidad = especialidad; }
+    public ArrayList<String> getEspecialidad() { return especialidad; }
+    public void setEspecialidad(ArrayList<String> especialidad) { this.especialidad = especialidad; }
 
     @Override
     public String toString() {

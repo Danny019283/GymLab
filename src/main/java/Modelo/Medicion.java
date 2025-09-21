@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package Modelo;
+import java.time.LocalDate;
 
 /**
  *
@@ -18,6 +19,7 @@ public class Medicion {
     private float cintura;
     private float pecho;
     private float muslo;
+    private LocalDate fechaDeMedicion;
 
     // Constructor vacío
     public Medicion() {
@@ -32,6 +34,23 @@ public class Medicion {
         this.muslo = 0.0f;
     }
 
+    // Constructor con todos los atributos
+    public Medicion(Cliente cliente, float peso, float estatura, float porcGrasa,
+                    float porcMusculo, float porcGrasaVis,
+                    float cintura, float pecho, float muslo, LocalDate fechaDeMedicion) {
+        this.cliente = cliente;
+        this.peso = peso;
+        this.estatura = estatura;
+        this.porcGrasa = porcGrasa;
+        this.porcMusculo = porcMusculo;
+        this.porcGrasaVis = porcGrasaVis;
+        this.cintura = cintura;
+        this.pecho = pecho;
+        this.muslo = muslo;
+        this.fechaDeMedicion = fechaDeMedicion;
+    }
+
+
     // Constructor con Builder
     public Medicion(Builder builder) {
         this.cliente = builder.cliente;
@@ -43,6 +62,7 @@ public class Medicion {
         this.cintura = builder.cintura;
         this.pecho = builder.pecho;
         this.muslo = builder.muslo;
+        this.fechaDeMedicion = builder.fechaDeMedicion;
     }
 
     public static class Builder{
@@ -55,6 +75,7 @@ public class Medicion {
         private float cintura;
         private float pecho;
         private float muslo;
+        private LocalDate fechaDeMedicion;
 
         public Builder cliente(Cliente cliente) {
             this.cliente = cliente;
@@ -101,24 +122,14 @@ public class Medicion {
             return this;
         }
 
+        public Builder fechaDeMedicion(LocalDate fechaDeMedicion) {
+            this.fechaDeMedicion = fechaDeMedicion;
+            return this;
+        }
+
         public Medicion build() {
             return new Medicion(this);
         }
-    }
-
-    // Constructor con todos los atributos
-    public Medicion(Cliente cliente, float peso, float estatura, float porcGrasa,
-                    float porcMusculo, float porcGrasaVis,
-                    float cintura, float pecho, float muslo) {
-        this.cliente = cliente;
-        this.peso = peso;
-        this.estatura = estatura;
-        this.porcGrasa = porcGrasa;
-        this.porcMusculo = porcMusculo;
-        this.porcGrasaVis = porcGrasaVis;
-        this.cintura = cintura;
-        this.pecho = pecho;
-        this.muslo = muslo;
     }
 
     // Getters y Setters
@@ -145,6 +156,9 @@ public class Medicion {
 
     public float getPecho() { return pecho; }
     public void setPecho(float pecho) { this.pecho = pecho; }
+
+    public LocalDate getFechaDeMedicion() { return fechaDeMedicion; }
+    public void setFechaDeMedicion(LocalDate fechaDeMedicion) { this.fechaDeMedicion = fechaDeMedicion; }
 
     public float getMuslo() { return muslo; }
     public void setMuslo(float muslo) { this.muslo = muslo; }
@@ -198,18 +212,22 @@ public class Medicion {
         return recomProte;
     }
 
-    @Override
-    public String toString() {
-        return "Medicion{" +
-                "cliente=" + (cliente != null ? cliente.getNombre() : "N/A") +
-                ", peso=" + peso +
-                ", estatura=" + estatura +
-                ", porcGrasa=" + porcGrasa +
-                ", porcMusculo=" + porcMusculo +
-                ", porcGrasaVis=" + porcGrasaVis +
-                ", cintura=" + cintura +
-                ", pecho=" + pecho +
-                ", muslo=" + muslo +
-                '}';
+    public String reporteDeMedicion(boolean haceEjercicio) {
+        return "Nombre del cliente: " + cliente.getNombre() + "\n" +
+                "Cedula del cliente: " + cliente.getCedula() + "\n" +
+                "Fecha de medicion: " + this.fechaDeMedicion + "\n" +
+                "Porcentaje de grasa: " + this.porcGrasa + " %\n" +
+                "Porcentaje de musculo: " + this.porcMusculo + " %\"n" +
+                "Edad Metabólica: " + String.format("%.2f", calcEdadMetabolica()) + " años\n" +
+                "Porcentaje de grasa visceral: " + this.porcGrasaVis + " %\n" +
+                "Cimtura: " + this.cintura + " cm\n" +
+                "pecho: " + this.pecho + " cm\n" +
+                "Muslo: " + this.muslo + " cm\n" +
+                "Peso: " + this.peso + " kg\n" +
+                "Estatura: " + this.estatura + " m\n" +
+                "IMC: " + String.format("%.2f", calcularIMC()) + " (" + clasificarIMC() + ")\n" +
+                "Cantidad recomendada de vasos de agua por día: " + String.format("%.2f", calcCantVasosDeAguaDia()) + " ml\n" +
+                "Cantidad recomendada de proteínas por día: " + String.format("%.2f", calcCantProteinasDia(haceEjercicio)) + " g\n";
     }
+
 }

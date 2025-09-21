@@ -1,6 +1,8 @@
 package AccesoADatos;
 import Modelo.Instructor;
 import oracle.jdbc.internal.OracleTypes;
+import oracle.sql.ARRAY;
+import oracle.sql.ArrayDescriptor;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -8,106 +10,254 @@ import java.util.List;
 
 public class ServicioInstructor extends Servicio {
 
-    public static final String insertarInstructor = " {call insertarinstructor(?,?,?,?,?,?)} ";
-    public static final String actualizarInstructor = " {call actualizarinstructor(?,?,?,?,?,?)} ";
-    public static final String eliminarInstructor = " {call eliminarinstructor(?)} ";
-    public static final String buscarInstructor = " {?=call buscarinstructor(?)} ";
-    public static final String listarInstructores = " {?=call listarinstructor()} ";
+    public static final String insertarInstructor = "{call insertar_instructor(?, ?, ?, ?, ?, ?)}";
+    public static final String actualizarInstructor = "{call actualizar_instructor(?, ?, ?, ?, ?, ?)}";
+    public static final String eliminarInstructor = "{call eliminar_instructor(?)}";
+    public static final String buscarInstructor = "{? = call buscar_instructor(?)}";
+    public static final String listarInstructores = "{? = call listar_instructores()}";
+    public static final String obtenerEspecialidades = "{? = call obtener_especialidades(?)}";
 
     public ServicioInstructor() {}
 
     public void insertarInstructor(Instructor instructor) throws GlobalException, NoDataException {
         conectar();
-
         CallableStatement pstmt = null;
 
         try {
+            // Convertir ArrayList<String> a ARRAY de Oracle
+            List<String> especialidadesList = instructor.getEspecialidad();
+            String[] especialidadesArray = especialidadesList.toArray(new String[0]);
+
+            ArrayDescriptor desc = ArrayDescriptor.createDescriptor("T_ESPECIALIDADES", conexion);
+            ARRAY arrayEspecialidades = new ARRAY(desc, conexion, especialidadesArray);
+
             pstmt = conexion.prepareCall(insertarInstructor);
             pstmt.setString(1, instructor.getCedula());
             pstmt.setString(2, instructor.getNombreCom());
             pstmt.setInt(3, instructor.getTelef());
             pstmt.setString(4, instructor.getCorreo());
-            pstmt.setString(5,instructor.getFechaNac());
-            pstmt.setString(6, instructor.getEspecialidad());
-            boolean resultado = pstmt.execute();
-            if (resultado) {
-                throw new NoDataException("No se realizo la inserci�n");
-            }
+            pstmt.setString(5, instructor.getFechaNac());
+            pstmt.setArray(6, arrayEspecialidades);
+
+            pstmt.execute();
 
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new GlobalException("Llave duplicada");
+            throw new GlobalException("Error al insertar instructor: " + e.getMessage());
         } finally {
             try {
-                if (pstmt != null) {
-                    pstmt.close();
-                }
+                if (pstmt != null) pstmt.close();
                 desconectar();
             } catch (SQLException e) {
-                throw new GlobalException("Estatutos invalidos o nulos");
+                throw new GlobalException("Error al cerrar conexión");
             }
         }
     }
 
-    public boolean actualizarInstructor(Instructor i){
-        return false;
+    public void actualizarInstructor(Instructor instructor) throws GlobalException, NoDataException {
+        conectar();
+        CallableStatement pstmt = null;
+
+        try {
+            // Convertir ArrayList<String> a ARRAY de Oracle
+            List<String> especialidadesList = instructor.getEspecialidad();
+            String[] especialidadesArray = especialidadesList.toArray(new String[0]);
+
+            ArrayDescriptor desc = ArrayDescriptor.createDescriptor("T_ESPECIALIDADES", conexion);
+            ARRAY arrayEspecialidades = new ARRAY(desc, conexion, especialidadesArray);
+
+            pstmt = conexion.prepareCall(actualizarInstructor);
+            pstmt.setString(1, instructor.getCedula());
+            pstmt.setString(2, instructor.getNombreCom());
+            pstmt.setInt(3, instructor.getTelef());
+            pstmt.setString(4, instructor.getCorreo());
+            pstmt.setString(5, instructor.getFechaNac());
+            pstmt.setArray(6, arrayEspecialidades);
+
+            int resultado = pstmt.executeUpdate();
+
+            if (resultado == 0) {
+                throw new NoDataException("No se realizó la actualización");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new GlobalException("Error al actualizar instructor: " + e.getMessage());
+        } finally {
+            try {
+                if (pstmt != null) pstmt.close();
+                desconectar();
+            } catch (SQLException e) {
+                throw new GlobalException("Error al cerrar conexión");
+            }
+        }
     }
 
-    public boolean eliminarInstructor(String cedula){
-        return false;
+    public void eliminarInstructor(String cedula) throws GlobalException, NoDataException {
+        conectar();
+        CallableStatement pstmt = null;
+
+        try {
+            pstmt = conexion.prepareCall(eliminarInstructor);
+            pstmt.setString(1, cedula);
+
+            int resultado = pstmt.executeUpdate();
+
+            if (resultado == 0) {
+                throw new NoDataException("No se realizó el borrado");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new GlobalException("Error al eliminar instructor: " + e.getMessage());
+        } finally {
+            try {
+                if (pstmt != null) pstmt.close();
+                desconectar();
+            } catch (SQLException e) {
+                throw new GlobalException("Error al cerrar conexión");
+            }
+        }
     }
 
     public Instructor buscarInstructor(String cedula) throws GlobalException {
         conectar();
-
-        ResultSet rs = null;
-        //ArrayList coleccion = new ArrayList();
-        Instructor instructor = null;
         CallableStatement pstmt = null;
+        ResultSet rs = null;
+        Instructor instructor = null;
+
         try {
             pstmt = conexion.prepareCall(buscarInstructor);
             pstmt.registerOutParameter(1, OracleTypes.CURSOR);
             pstmt.setString(2, cedula);
             pstmt.execute();
+
             rs = (ResultSet) pstmt.getObject(1);
-            if (rs.next()) {
-                instructor = new Instructor(rs.getString("cedula"), rs.getString("nombrecom"),
-                        rs.getInt("telefono"), rs.getString("correo"),
-                        rs.getString("fechanac"), rs.getString("especialidad"));
+
+            if (rs != null && rs.next()) {
+                // Obtener datos básicos
+                String cedulaInstructor = rs.getString("cedula");
+                String nombre = rs.getString("nombreCom");
+                int telefono = rs.getInt("telefono");
+                String correo = rs.getString("correo");
+                String fechaNac = rs.getString("fechaNac");
+
+                // Obtener especialidades como ArrayList
+                ArrayList<String> especialidades = obtenerEspecialidadesComoArrayList(cedula);
+
+                instructor = new Instructor(cedulaInstructor, nombre, telefono, correo, fechaNac, especialidades);
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
-
-            throw new GlobalException("Sentencia no valida");
+            throw new GlobalException("Error al buscar instructor: " + e.getMessage());
         } finally {
             try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (pstmt != null) {
-                    pstmt.close();
-                }
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
                 desconectar();
             } catch (SQLException e) {
-                throw new GlobalException("Estatutos invalidos o nulos");
+                throw new GlobalException("Error al cerrar conexión");
             }
         }
         return instructor;
     }
 
-    public Instructor listarInstructores(){
-        return null;
+    // Método auxiliar para obtener especialidades como ArrayList
+    private ArrayList<String> obtenerEspecialidadesComoArrayList(String cedula) throws GlobalException {
+        conectar();
+        CallableStatement pstmt = null;
+        ResultSet rs = null;
+        ArrayList<String> especialidades = new ArrayList<>();
+
+        try {
+            pstmt = conexion.prepareCall(obtenerEspecialidades);
+            pstmt.registerOutParameter(1, OracleTypes.CURSOR);
+            pstmt.setString(2, cedula);
+            pstmt.execute();
+
+            rs = (ResultSet) pstmt.getObject(1);
+
+            while (rs != null && rs.next()) {
+                especialidades.add(rs.getString("especialidad"));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new GlobalException("Error al obtener especialidades: " + e.getMessage());
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+                desconectar();
+            } catch (SQLException e) {
+                throw new GlobalException("Error al cerrar conexión");
+            }
+        }
+        return especialidades;
     }
 
-    //main:
+    public ArrayList<Instructor> listarInstructores() throws GlobalException {
+        conectar();
+        CallableStatement pstmt = null;
+        ResultSet rs = null;
+        ArrayList<Instructor> instructores = new ArrayList<>();
+
+        try {
+            pstmt = conexion.prepareCall(listarInstructores);
+            pstmt.registerOutParameter(1, OracleTypes.CURSOR);
+            pstmt.execute();
+
+            rs = (ResultSet) pstmt.getObject(1);
+
+            while (rs != null && rs.next()) {
+                String cedula = rs.getString("cedula");
+                String nombre = rs.getString("nombreCom");
+                int telefono = rs.getInt("telefono");
+                String correo = rs.getString("correo");
+                String fechaNac = rs.getString("fechaNac");
+
+                // Obtener especialidades para cada instructor
+                ArrayList<String> especialidades = obtenerEspecialidadesComoArrayList(cedula);
+
+                Instructor instructor = new Instructor(cedula, nombre, telefono, correo, fechaNac, especialidades);
+                instructores.add(instructor);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new GlobalException("Error al listar instructores: " + e.getMessage());
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+                desconectar();
+            } catch (SQLException e) {
+                throw new GlobalException("Error al cerrar conexión");
+            }
+        }
+        return instructores;
+    }
+
+    // main modificado para usar ArrayList
     public static void main(String[] args) {
         ServicioInstructor si = new ServicioInstructor();
         System.out.println("Conexion");
         try {
-            Instructor instructor = new Instructor("124", "Juan Perez", 12345678, "juanca@gmail.com", "19/01/2002", "yoga");
+            // Crear ArrayList de especialidades
+            ArrayList<String> especialidades = new ArrayList<>();
+            especialidades.add("yoga");
+            especialidades.add("pilates");
+            especialidades.add("fitness");
+
+            Instructor instructor = new Instructor("124", "Juan Perez", 12345678,
+                    "juanca@gmail.com", "19/01/2002", especialidades);
+
             si.insertarInstructor(instructor);
+            System.out.println("Instructor insertado correctamente");
+
         } catch (GlobalException | NoDataException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 }

@@ -8,14 +8,15 @@ import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class ServicioCliente extends Servicio {
 
-    private static final String insertarCliente = "{call insertarcliente(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
-    private static final String actualizarCliente = "{call actualizarcliente(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+    private static final String insertarCliente = "{call insertarcliente(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+    private static final String actualizarCliente = "{call actualizarcliente(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
     private static final String eliminarCliente = "{call eliminarcliente(?)}";
     private static final String buscarCliente = "{?=call buscarcliente(?)}";
-    private static final String listarClientes = "{call listarcliente()}";
+    private static final String listarClientes = "{?= call listarclientes()}";
 
     ServicioCliente() {}
 
@@ -35,6 +36,7 @@ public class ServicioCliente extends Servicio {
             pstmt.setString(7, cliente.getFechaInscrip());
             pstmt.setInt(8, cliente.getEdad());
             pstmt.setString(9, cliente.getInstructor().getCedula());
+            pstmt.setString(10, cliente.getSucursal().getCod());
             boolean resultado = pstmt.execute();
             if (resultado) {
                 throw new NoDataException("No se realizo la inserci�n");
@@ -69,6 +71,7 @@ public class ServicioCliente extends Servicio {
             pstmt.setString(7, cliente.getFechaInscrip());
             pstmt.setInt(8, cliente.getEdad());
             pstmt.setString(9, cliente.getInstructor().getCedula());
+            pstmt.setString(10, cliente.getSucursal().getCod());
             int resultado = pstmt.executeUpdate();
 
             //si es diferente de 0 es porq si afecto un registro o mas
@@ -124,7 +127,6 @@ public class ServicioCliente extends Servicio {
         conectar();
 
         ResultSet rs = null;
-        //ArrayList coleccion = new ArrayList();
         Cliente cliente = null;
         ServicioInstructor servicioIns = new ServicioInstructor();
         CallableStatement pstmt = null;
@@ -135,9 +137,9 @@ public class ServicioCliente extends Servicio {
             pstmt.execute();
             rs = (ResultSet) pstmt.getObject(1);
             if (rs.next()) {
-                Cliente clinete = new Cliente.Builder()
+                    cliente = new Cliente.Builder()
                         .cedula(rs.getString("cedula"))
-                        .nombre(rs.getString("nombrecom"))
+                        .nombre(rs.getString("nombre"))
                         .telefono(rs.getInt("telefono"))
                         .correo(rs.getString("correo"))
                         .fechaNac(rs.getString("fechanac"))
@@ -182,8 +184,53 @@ public class ServicioCliente extends Servicio {
         }
     }
 
-    public String listarClientes(){
-        return null;
+    public String listarClientes() throws NoDataException, GlobalException {
+        conectar();
+        ResultSet rs = null;
+        ArrayList coleccion = new ArrayList();
+        CallableStatement pstmt = null;
+        try {
+            pstmt = conexion.prepareCall(listarClientes);
+            pstmt.registerOutParameter(1, OracleTypes.CURSOR);
+            pstmt.execute();
+            rs = (ResultSet) pstmt.getObject(1);
+            while (rs.next()) {
+                coleccion.add(new Cliente.Builder()
+                        .cedula(rs.getString("cedula"))
+                        .nombre(rs.getString("nombre"))
+                        .telefono(rs.getInt("telefono"))
+                        .correo(rs.getString("correo"))
+                        .fechaNac(rs.getString("fechanac"))
+                        .sexo(rs.getString("sexo"))
+                        .fechaInscrip(rs.getString("fechainscrip"))
+                        .edad(rs.getInt("edad"))
+                        .instructor(new Instructor.Builder()
+                                .cedula(rs.getString("instructor_cedula"))
+                                .build()
+                        )
+                        .build());
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+            throw new GlobalException("Sentencia no valida");
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+                desconectar();
+            } catch (SQLException e) {
+                throw new GlobalException("Estatutos invalidos o nulos");
+            }
+        }
+        if (coleccion.size() == 0) {
+            throw new NoDataException("No hay datos");
+        }
+        return coleccion.toString();
     }
 
     public static void main(String[] args) {
@@ -191,13 +238,15 @@ public class ServicioCliente extends Servicio {
         ServicioInstructor si = new ServicioInstructor();
         Instructor instructor = null;
         try{
-           instructor = si.buscarInstructor("124");
+            instructor = si.buscarInstructor("124");
         } catch (GlobalException e) {
             throw new RuntimeException(e);
         }
-
-        Cliente c = new Cliente("123", "Makunga", 25, 5551234,
-                "juanqui@gmail.com", "01/01/1999", "Masculino", "15/03/2023", instructor);
+        Cliente c = new Cliente.Builder()
+                .cedula("1234567890")
+                .nombre("Juan Perez")
+                .telefono(123456789)
+                .correo("hola").build();
         try {
             sc.insertarCliente(c);
         } catch (GlobalException | NoDataException e) {

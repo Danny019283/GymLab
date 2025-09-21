@@ -4,6 +4,8 @@
  */
 package Modelo;
 
+import AccesoADatos.ServicioMedicion;
+
 /**
  *
  * @author Danny
@@ -18,6 +20,8 @@ public class Cliente {
     private String fechaInscrip;
     private int edad;
     private Instructor instructor;
+    private Sucursal sucursal;
+    private ServicioMedicion mediciones;
 
     // Constructor vacío
     public Cliente() {
@@ -30,12 +34,14 @@ public class Cliente {
         this.fechaInscrip = "";
         this.edad = 0;
         this.instructor = new Instructor();
+        this.sucursal = new Sucursal();
+        this.mediciones = new ServicioMedicion();
     }
 
     // Constructor con todos los atributos
     public Cliente(String cedula, String nombre, int edad, int telefono, String correo,
                    String fechaNac, String sexo, String fechaInscrip,
-                   Instructor instructor) {
+                   Instructor instructor, Sucursal sucursal) {
         this.cedula = cedula;
         this.nombre = nombre;
         this.telefono = telefono;
@@ -45,6 +51,7 @@ public class Cliente {
         this.fechaInscrip = fechaInscrip;
         this.edad = edad;
         this.instructor = instructor;
+        this.sucursal = sucursal;
     }
 
     //Constructor con Builder
@@ -58,6 +65,7 @@ public class Cliente {
         this.fechaInscrip = builder.fechaInscrip;
         this.edad = builder.edad;
         this.instructor = builder.instructor;
+        this.sucursal =builder.sucursal;
     }
 
     public static class Builder {
@@ -70,6 +78,7 @@ public class Cliente {
         private String fechaInscrip;
         private int edad;
         private Instructor instructor;
+        private Sucursal sucursal;
 
         public Builder cedula(String cedula) {
             this.cedula = cedula;
@@ -116,6 +125,11 @@ public class Cliente {
             return this;
         }
 
+        public Builder sucursal(Sucursal sucursal) {
+            this.sucursal = sucursal;
+            return this;
+        }
+
         public Cliente build() {
             return new Cliente(this);
         }
@@ -149,6 +163,16 @@ public class Cliente {
     public Instructor getInstructor() { return instructor; }
     public void setInstructor(Instructor instructor) { this.instructor = instructor; }
 
+    public Sucursal getSucursal() {
+        return sucursal;
+    }
+    public void setSucursal(Sucursal sucursal) {
+        this.sucursal = sucursal;
+    }
+
+    public ServicioMedicion getMediciones() { return mediciones; }
+    public void setMediciones(ServicioMedicion mediciones) { this.mediciones = mediciones; }
+
     @Override
     public String toString() {
         return "Cliente{" +
@@ -161,6 +185,7 @@ public class Cliente {
                 ", fechaInscrip='" + fechaInscrip + '\'' +
                 ", edad=" + edad +
                 ", instructor=" + (instructor != null ? instructor.getNombreCom() : "N/A") +
+                ", sucursal=" + (sucursal != null ? sucursal.getCod() : "N/A") +
                 '}';
     }
 }

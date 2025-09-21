@@ -9,7 +9,7 @@ package Modelo;
  * @author Danny
  */
 public class ClaseGrupal {
-    private String id;
+    private String codigo;
     private int cupoMax;
     private int numSalon;
     private String especialidad;
@@ -18,7 +18,7 @@ public class ClaseGrupal {
 
     // Constructor vacío
     public ClaseGrupal() {
-        this.id = "";
+        this.codigo = "";
         this.cupoMax = 0;
         this.numSalon = 0;
         this.especialidad = "";
@@ -27,9 +27,9 @@ public class ClaseGrupal {
     }
 
     // Constructor con todos los atributos
-    public ClaseGrupal(String id, int cupoMax, int numSalon,
+    public ClaseGrupal(String codigo, int cupoMax, int numSalon,
                        String especialidad, String horario, Instructor instructor) {
-        this.id = id;
+        this.codigo = codigo;
         this.cupoMax = cupoMax;
         this.numSalon = numSalon;
         this.especialidad = especialidad;
@@ -38,8 +38,8 @@ public class ClaseGrupal {
     }
 
     // Getters y Setters
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    public String getCodigo() { return codigo; }
+    public void setCodigo(String codigo) { this.codigo = codigo; }
 
     public int getCupoMax() { return cupoMax; }
     public void setCupoMax(int cupoMax) { this.cupoMax = cupoMax; }
@@ -59,7 +59,7 @@ public class ClaseGrupal {
     @Override
     public String toString() {
         return "ClaseGrupal{" +
-                "id='" + id + '\'' +
+                "id='" + codigo + '\'' +
                 ", cupoMax=" + cupoMax +
                 ", numSalon=" + numSalon +
                 ", especialidad='" + especialidad + '\'' +

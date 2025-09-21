@@ -1,7 +1,7 @@
 package AccesoADatos;
 import Modelo.Sucursal;
 
-public class SucursalDAO {
+public class ServicioSucursal {
     public boolean agregarSucursal(Sucursal s){
         return false;
     }
