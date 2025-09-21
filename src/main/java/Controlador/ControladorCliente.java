@@ -4,6 +4,7 @@ import AccesoADatos.NoDataException;
 import Modelo.Cliente;
 import AccesoADatos.ServicioCliente;
 import Modelo.Instructor;
+import Modelo.Sucursal;
 import Vista.VistaCliente;
 
 public class ControladorCliente {
@@ -17,8 +18,31 @@ public class ControladorCliente {
     }
 
     public boolean registrarCliente(String cedula, String nombre, int telefono, String correo, String fechaNac,
-                     String sexo, String fechaInscrip, int edad, Instructor instructor){
+                     String sexo, String fechaInscrip, int edad, Instructor instructor, Sucursal sucursal) {
 
+        Cliente cliente = new Cliente.Builder()
+                .cedula(cedula)
+                .nombre(nombre)
+                .telefono(telefono)
+                .correo(correo)
+                .fechaNac(fechaNac)
+                .sexo(sexo)
+                .fechaInscrip(fechaInscrip)
+                .edad(edad)
+                .instructor(instructor)
+                .sucursal(sucursal)
+                .build();
+        try{
+            servicioCliente.insertarCliente(cliente);
+            return true;
+        }catch(GlobalException | NoDataException e){
+            throw  new RuntimeException(e);
+        }
+    }
+
+
+    public boolean modificarCliente(String cedula, String nombre, int telefono, String correo, String fechaNac,
+                     String sexo, String fechaInscrip, int edad, Instructor instructor){
         Cliente cliente = new Cliente.Builder()
                 .cedula(cedula)
                 .nombre(nombre)
@@ -31,26 +55,30 @@ public class ControladorCliente {
                 .instructor(instructor)
                 .build();
         try{
-            servicioCliente.insertarCliente(cliente);
+            servicioCliente.actualizarCliente(cliente);
             return true;
-        }catch(GlobalException | NoDataException e){
-            throw  new RuntimeException(e);
+        } catch (GlobalException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    /*
-    public boolean modificarCliente(String cedula, String nombre, int telefono, String correo, String fechaNac,
-                     String sexo, String fechaInscrip, int edad, Instructor instructor){
-        Cliente c = new Cliente(cedula, nombre, edad, telefono, correo, fechaNac, sexo, fechaInscrip, instructor);
-        return servicioCliente.actualizarCliente(c);
-    }
-
-    public  boolean eliminarCliente(String cedula){
+    public  boolean eliminarCliente(String cedula) throws GlobalException {
         return servicioCliente.eliminarCliente(cedula);
     }
 
-    public boolean mostrarPagina(int inicio, int fin, int pagina){
-        servicioCliente.getPagina(inicio, fin, pagina);
-        return true;
-    }*/
+    public Cliente buscarCliente(String cedula) throws GlobalException {
+        return servicioCliente.buscarCliente(cedula);
+    }
+
+    public void mostrarClientes() throws GlobalException {
+        //vistaCliente.mostrarClientes(servicioCliente.listarClientes());
+        return;
+    }
+
+    public String mostrarClientesPorInstructor(String cedulaInstructor) throws GlobalException {
+        //return vistaCliente.mostrarClientesPorInstructor(servicioCliente.listarClientesPorInstructor(cedulaInstructor));
+        return "";
+    }
+
+
 }

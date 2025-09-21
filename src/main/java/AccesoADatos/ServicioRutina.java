@@ -14,7 +14,7 @@ public class ServicioRutina extends Servicio {
     private static final String buscarRutina = "{?=call buscarrutina(?)}";
     private static final String listarRutinas = "{?= call listarrutina()}";
 
-    ServicioRutina() {}
+    public ServicioRutina() {}
 
     public void insertarRutina(Rutina rutina, String id_cliente) throws GlobalException, NoDataException {
         conectar();

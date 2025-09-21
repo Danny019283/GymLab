@@ -18,7 +18,7 @@ public class ServicioClaseClientes extends Servicio {
     private static final String verificarCupoClase = "{?=call verificarCupoClase(?)}";
     private static final String verificarClasesCliente = "{?=call verificarClasesCliente(?)}";
 
-    ServicioClaseClientes() {}
+    public ServicioClaseClientes() {}
 
     public void insertarClaseCliente(String codigoClase, String cedulaCliente) throws GlobalException, NoDataException {
         conectar();

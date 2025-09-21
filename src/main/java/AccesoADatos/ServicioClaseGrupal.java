@@ -15,7 +15,7 @@ public class ServicioClaseGrupal extends Servicio {
     private static final String buscarClaseGrupal = "{?=call buscarclasegrupal(?)}";
     private static final String listarClasesGrupales = "{?= call listarclasegrupal()}";
 
-    ServicioClaseGrupal() {}
+    public ServicioClaseGrupal() {}
 
     public void insertarClaseGrupal(ClaseGrupal claseGrupal) throws GlobalException, NoDataException {
         conectar();

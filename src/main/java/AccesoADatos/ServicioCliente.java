@@ -17,6 +17,7 @@ public class ServicioCliente extends Servicio {
     private static final String eliminarCliente = "{call eliminarcliente(?)}";
     private static final String buscarCliente = "{?=call buscarcliente(?)}";
     private static final String listarClientes = "{?= call listarclientes()}";
+    private static final String listarClientesPorInstructor = "{?= call listarclientesinstructor(?)}";
 
     ServicioCliente() {}
 
@@ -94,7 +95,7 @@ public class ServicioCliente extends Servicio {
         }
     }
 
-    public void eliminarCliente(String cedula) throws GlobalException {
+    public boolean eliminarCliente(String cedula) throws GlobalException {
         conectar();
 
         PreparedStatement pstmt = null;
@@ -107,7 +108,7 @@ public class ServicioCliente extends Servicio {
             if (resultado == 0) {
                 throw new NoDataException("No se realizo el borrado");
             } else {
-                System.out.println("\nEliminaci�n Satisfactoria!");
+                return true;
             }
         } catch (SQLException | NoDataException e) {
             throw new GlobalException("Sentencia no valida");
@@ -172,7 +173,7 @@ public class ServicioCliente extends Servicio {
         return cliente;
     }
 
-    public void buscarCliente(String cedula) throws GlobalException {
+    public Cliente buscarCliente(String cedula) throws GlobalException {
         Cliente cliente = buscarClienteBD(cedula);
         String cedulaIns = cliente.getInstructor().getCedula();
         ServicioInstructor servicioIns = new ServicioInstructor();
@@ -182,6 +183,7 @@ public class ServicioCliente extends Servicio {
         } catch (GlobalException e) {
             throw new RuntimeException(e);
         }
+        return cliente;
     }
 
     public String listarClientes() throws NoDataException, GlobalException {
@@ -231,6 +233,57 @@ public class ServicioCliente extends Servicio {
             throw new NoDataException("No hay datos");
         }
         return coleccion.toString();
+    }
+
+    public String listarClientesPorInstructor(String cedulaInstructor) throws GlobalException {
+        ArrayList<Cliente> clientes = new ArrayList<>();
+        try {
+            conectar();
+            ResultSet rs = null;
+            CallableStatement pstmt = null;
+
+            try {
+                pstmt = conexion.prepareCall(listarClientesPorInstructor);
+                pstmt.registerOutParameter(1, OracleTypes.CURSOR);
+                pstmt.setString(2, cedulaInstructor);
+                pstmt.execute();
+                rs = (ResultSet) pstmt.getObject(1);
+                while (rs.next()) {
+                    clientes.add(new Cliente.Builder()
+                            .cedula(rs.getString("cedula"))
+                            .nombre(rs.getString("nombre"))
+                            .telefono(rs.getInt("telefono"))
+                            .correo(rs.getString("correo"))
+                            .fechaNac(rs.getString("fechanac"))
+                            .sexo(rs.getString("sexo"))
+                            .fechaInscrip(rs.getString("fechainscrip"))
+                            .edad(rs.getInt("edad"))
+                            .instructor(new Instructor.Builder()
+                                    .cedula(rs.getString("instructor_cedula"))
+                                    .build()
+                            )
+                            .build());
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                throw new GlobalException("Sentencia no valida");
+            } finally {
+                try {
+                    if (pstmt != null) {
+                        pstmt.close();
+                    }
+                    desconectar();
+                } catch (SQLException e) {
+                    throw new GlobalException("Estatutos invalidos o nulos");
+                }
+            }
+        } catch (GlobalException e) {
+            throw new RuntimeException(e);
+        }
+        if (clientes.size() == 0) {
+            return "No hay datos";
+        }
+        return clientes.toString();
     }
 
     public static void main(String[] args) {
