@@ -20,6 +20,7 @@ public class ServicioMedicion extends Servicio {
     public void insertarMedicion(Medicion medicion) throws GlobalException, NoDataException {
         conectar();
         CallableStatement pstmt = null;
+        System.out.println(medicion.getPeso());
         try {
             pstmt = conexion.prepareCall(insertarMedicion);
             pstmt.setString(1, medicion.getCliente().getCedula());
@@ -107,7 +108,7 @@ public class ServicioMedicion extends Servicio {
         }
     }
 
-    public ArrayList<Medicion> buscarMedicion(Cliente cliente) throws GlobalException {
+    public ArrayList<Medicion> buscarMedicion(String cedula) throws GlobalException {
         conectar();
         ResultSet rs = null;
         ArrayList<Medicion> mediciones = new ArrayList<>();
@@ -115,24 +116,26 @@ public class ServicioMedicion extends Servicio {
         try {
             pstmt = conexion.prepareCall(buscarMedicion);
             pstmt.registerOutParameter(1, OracleTypes.CURSOR);
-            pstmt.setString(2, cliente.getCedula());
+            pstmt.setString(2, cedula);
             pstmt.execute();
             rs = (ResultSet) pstmt.getObject(1);
+
             while (rs.next()) {
                 mediciones.add(
-                new Medicion(
-                        cliente,
-                        rs.getFloat("peso"),
-                        rs.getFloat("estatura"),
-                        rs.getFloat("porcGrasa"),
-                        rs.getFloat("porcMusculo"),
-                        rs.getFloat("porcGrasaVis"),
-                        rs.getFloat("cintura"),
-                        rs.getFloat("pecho"),
-                        rs.getFloat("muslo"),
-                        rs.getDate("fecha_de_medicion").toLocalDate())
+                        new Medicion.Builder()
+                                .cliente(new Cliente.Builder()
+                                        .cedula(rs.getString("cedula_cliente")).build())
+                                .peso(rs.getFloat("peso"))
+                                .estatura(rs.getFloat("estatura"))
+                                .porcGrasa(rs.getFloat("porcGrasa"))
+                                .porcMusculo(rs.getFloat("porcMusculo"))
+                                .porcGrasaVis(rs.getFloat("porcGrasaVis"))
+                                .cintura(rs.getFloat("cintura"))
+                                .pecho(rs.getFloat("pecho"))
+                                .muslo(rs.getFloat("muslo"))
+                                .fechaDeMedicion(rs.getDate("fecha_de_medicion").toLocalDate())
+                                .build()
                 );
-
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -153,7 +156,7 @@ public class ServicioMedicion extends Servicio {
         return mediciones;
     }
 
-    public String listarMediciones() throws NoDataException, GlobalException {
+    public ArrayList<Medicion> listarMediciones() throws NoDataException, GlobalException {
         conectar();
         ResultSet rs = null;
         ArrayList<Medicion> coleccion = new ArrayList<>();
@@ -163,9 +166,11 @@ public class ServicioMedicion extends Servicio {
             pstmt.registerOutParameter(1, OracleTypes.CURSOR);
             pstmt.execute();
             rs = (ResultSet) pstmt.getObject(1);
+
             while (rs.next()) {
-            }
                 coleccion.add(new Medicion.Builder()
+                        .cliente(new Cliente.Builder()
+                                .cedula(rs.getString("cedula_cliente")).build())
                         .peso(rs.getFloat("peso"))
                         .estatura(rs.getFloat("estatura"))
                         .porcGrasa(rs.getFloat("porcGrasa"))
@@ -174,8 +179,10 @@ public class ServicioMedicion extends Servicio {
                         .cintura(rs.getFloat("cintura"))
                         .pecho(rs.getFloat("pecho"))
                         .muslo(rs.getFloat("muslo"))
-                        .fechaDeMedicion(rs.getDate("fecha_de_medicion").toLocalDate()).build()
+                        .fechaDeMedicion(rs.getDate("fecha_de_medicion").toLocalDate())
+                        .build()
                 );
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             throw new GlobalException("Sentencia no valida");
@@ -192,9 +199,9 @@ public class ServicioMedicion extends Servicio {
                 throw new GlobalException("Estatutos invalidos o nulos");
             }
         }
-        if (coleccion.size() == 0) {
+        if (coleccion.isEmpty()) {
             throw new NoDataException("No hay datos");
         }
-        return coleccion.toString();
+        return coleccion;
     }
 }

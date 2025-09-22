@@ -187,14 +187,32 @@ public class Medicion {
         }
     }
 
-    public double calcEdadMetabolica(){
-        double edadMetabolica = (10 * this.peso) + (6.25 * this.estatura) - (5 * this.cliente.getEdad());
+    public double calcTMB(){
+        double TMB = (10 * this.peso) + (6.25 * this.estatura) - (5 * this.cliente.getEdad());
         if (this.cliente.getSexo().equals("Masculino")) {
-            return edadMetabolica + 5;
+            return TMB + 5;
         }
         else {
-            return edadMetabolica - 161;
+            return TMB - 161;
         }
+    }
+
+    public double calcEdadMetabolica() {
+        int[] edades = {20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70};
+        double[] tmbPromedio = {1750, 1700, 1660, 1620, 1580, 1540, 1500, 1460, 1420, 1380, 1340};
+        double diferenciaMin = 1000;
+        int edadMetabolica = edades[0];
+        double tmbCliente = calcTMB();
+
+        // Buscamos la TMB promedio más cercana al usuario
+        for (int i = 0; i < tmbPromedio.length; i++) {
+            double diff = Math.abs(tmbPromedio[i] - tmbCliente);
+            if (diff < diferenciaMin) {
+                diferenciaMin = diff;
+                edadMetabolica = edades[i];
+            }
+        }
+        return edadMetabolica;
     }
 
     public double calcCantVasosDeAguaDia(){
@@ -217,10 +235,10 @@ public class Medicion {
                 "Cedula del cliente: " + cliente.getCedula() + "\n" +
                 "Fecha de medicion: " + this.fechaDeMedicion + "\n" +
                 "Porcentaje de grasa: " + this.porcGrasa + " %\n" +
-                "Porcentaje de musculo: " + this.porcMusculo + " %\"n" +
+                "Porcentaje de musculo: " + this.porcMusculo + " %\n" +
                 "Edad Metabólica: " + String.format("%.2f", calcEdadMetabolica()) + " años\n" +
                 "Porcentaje de grasa visceral: " + this.porcGrasaVis + " %\n" +
-                "Cimtura: " + this.cintura + " cm\n" +
+                "Cintura: " + this.cintura + " cm\n" +
                 "pecho: " + this.pecho + " cm\n" +
                 "Muslo: " + this.muslo + " cm\n" +
                 "Peso: " + this.peso + " kg\n" +

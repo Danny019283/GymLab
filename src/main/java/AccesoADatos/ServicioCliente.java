@@ -17,7 +17,7 @@ public class ServicioCliente extends Servicio {
     private static final String actualizarCliente = "{call actualizarcliente(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
     private static final String eliminarCliente = "{call eliminarcliente(?)}";
     private static final String buscarCliente = "{?=call buscarcliente(?)}";
-    private static final String listarClientes = "{?= call listarclientes()}";
+    private static final String listarClientes = "{?= call listarcliente()}";
     private static final String listarClientesPorInstructor = "{?= call listarclientesinstructor(?)}";
 
     public ServicioCliente() {}
@@ -78,9 +78,9 @@ public class ServicioCliente extends Servicio {
 
             //si es diferente de 0 es porq si afecto un registro o mas
             if (resultado == 0) {
-                throw new NoDataException("No se realizo la actualizaci�n");
+                throw new NoDataException("No se realizo la actualizacion");
             } else {
-                System.out.println("\nModificaci�n Satisfactoria!");
+                System.out.println("\nModificacion Satisfactoria!");
             }
         } catch (SQLException | NoDataException e) {
             throw new GlobalException("Sentencia no valida");
@@ -188,10 +188,10 @@ public class ServicioCliente extends Servicio {
         return cliente;
     }
 
-    public String listarClientes() throws NoDataException, GlobalException {
+    public ArrayList<Cliente> listarClientes() throws NoDataException, GlobalException {
         conectar();
         ResultSet rs = null;
-        ArrayList coleccion = new ArrayList();
+        ArrayList<Cliente> coleccion = new ArrayList<>();
         CallableStatement pstmt = null;
         try {
             pstmt = conexion.prepareCall(listarClientes);
@@ -204,12 +204,12 @@ public class ServicioCliente extends Servicio {
                         .nombre(rs.getString("nombre"))
                         .telefono(rs.getInt("telefono"))
                         .correo(rs.getString("correo"))
-                        .fechaNac(rs.getString("fechanac"))
+                        .fechaNac(rs.getString("fechaNac"))
                         .sexo(rs.getString("sexo"))
-                        .fechaInscrip(rs.getString("fechainscrip"))
+                        .fechaInscrip(rs.getString("fechaInscrip"))
                         .edad(rs.getInt("edad"))
                         .instructor(new Instructor.Builder()
-                                .cedula(rs.getString("instructor_cedula"))
+                                .cedula(rs.getString("cedula_instructor"))
                                 .build()
                         )
                         .sucursal(new Sucursal.Builder()
@@ -237,10 +237,10 @@ public class ServicioCliente extends Servicio {
         if (coleccion.size() == 0) {
             throw new NoDataException("No hay datos");
         }
-        return coleccion.toString();
+        return coleccion;
     }
 
-    public String listarClientesPorInstructor(String cedulaInstructor) throws GlobalException {
+    public ArrayList<Cliente> listarClientesPorInstructor(String cedulaInstructor) throws GlobalException {
         ArrayList<Cliente> clientes = new ArrayList<>();
         try {
             conectar();
@@ -264,11 +264,11 @@ public class ServicioCliente extends Servicio {
                             .fechaInscrip(rs.getString("fechainscrip"))
                             .edad(rs.getInt("edad"))
                             .instructor(new Instructor.Builder()
-                                    .cedula(rs.getString("instructor_cedula"))
+                                    .cedula(rs.getString("cedula_instructor"))
                                     .build()
                             )
                             .sucursal(new Sucursal.Builder()
-                                    .cod(rs.getString("cod_instructor"))
+                                    .cod(rs.getString("cod_sucursal"))
                                     .build())
                             .build());
                 }
@@ -289,9 +289,10 @@ public class ServicioCliente extends Servicio {
             throw new RuntimeException(e);
         }
         if (clientes.size() == 0) {
-            return "No hay datos";
+            return null;
         }
-        return clientes.toString();
+        return clientes;
     }
+
 
 }

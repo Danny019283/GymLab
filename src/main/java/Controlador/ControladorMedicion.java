@@ -1,75 +1,127 @@
 package Controlador;
 
-import AccesoADatos.ServicioMedicion;
-import Modelo.Cliente;
+import AccesoADatos.*;
 import Modelo.Medicion;
+import Modelo.Cliente;
+import Vista.FormularioMedicion;
+import Vista.VistaMedicion;
 
-import java.time.LocalDate;
+import javax.swing.*;
+import java.util.ArrayList;
 
 public class ControladorMedicion {
-    ServicioMedicion servicioMedicion = new ServicioMedicion();
-    //vista medicion;
+    private final ServicioMedicion servicioMedicion;
+    private final VistaMedicion vistaMedicion;
 
-    public boolean registrarMedicion(Cliente cliente, float peso, float altura, LocalDate fechaMedi, float cintura,
-                                   float porcGrasa, float porcGrasaVis, float porcMusculo, float muslo, float pecho) throws Exception {
-        //si el cliente tiene un instructor asignado, se puede registrar la medicion
-        if (cliente.getInstructor() != null) {
-            Medicion medicion = new Medicion.Builder()
-                    .cliente(cliente)
-                    .peso(peso)
-                    .estatura(altura)
-                    .fechaDeMedicion(fechaMedi)
-                    .cintura(cintura)
-                    .porcGrasa(porcGrasa)
-                    .porcGrasaVis(porcGrasaVis)
-                    .porcMusculo(porcMusculo)
-                    .muslo(muslo)
-                    .pecho(pecho)
-                    .build();
-            servicioMedicion.insertarMedicion(medicion);
-            return true;
-        }
-        return false;
+    public ControladorMedicion() {
+        this.servicioMedicion = new ServicioMedicion();
+        this.vistaMedicion = new VistaMedicion();
     }
 
-    public static void main(String[] args) {
-        //testing
-        try {
-            // Instanciar controlador
-            ControladorMedicion controlador = new ControladorMedicion();
+    public void buscarMedicionesPorCliente() {
+        String cedula = vistaMedicion.getTextoBusqueda();
+        if (cedula.isEmpty()) {
+            vistaMedicion.mostrarError("Ingrese una cédula para buscar");
+            return;
+        }
 
-            // Traer cliente desde la BD
-            AccesoADatos.ServicioCliente servicioCliente = new AccesoADatos.ServicioCliente();
-            Cliente cliente = servicioCliente.buscarCliente("C001"); // el cliente ya insertado antes
+        try {
+            ArrayList<Medicion> mediciones = servicioMedicion.buscarMedicion(cedula);
+            vistaMedicion.getTablaMedicion().refrescarData(mediciones);
+        } catch (GlobalException e) {
+            vistaMedicion.mostrarError("Error al buscar mediciones: " + e.getMessage());
+        }
+    }
+
+    public void registrarMedicion() {
+        FormularioMedicion formulario = new FormularioMedicion();
+        boolean resultado = formulario.mostrarDialogo("Agregar Medición");
+
+        if (!resultado) return;
+
+        try {
+            // Buscar cliente
+            ControladorCliente controladorCliente = new ControladorCliente();
+            Cliente cliente = controladorCliente.buscarCliente(formulario.getCedula());
 
             if (cliente == null) {
-                System.err.println("No se encontró el cliente en la BD ");
+                vistaMedicion.mostrarError("Cliente no encontrado");
                 return;
             }
 
-            // Probar registro de medición
-            boolean ok = controlador.registrarMedicion(
-                    cliente,
-                    70.5f,                     // peso
-                    1.75f,                     // altura
-                    LocalDate.now(),           // fecha medición
-                    85.0f,                     // cintura
-                    20.5f,                     // % grasa
-                    10.2f,                     // % grasa visceral
-                    40.0f,                     // % musculo
-                    55.0f,                     // muslo
-                    95.0f                      // pecho
-            );
+            Medicion medicion = new Medicion.Builder()
+                    .cliente(cliente)
+                    .peso(formulario.getPeso())
+                    .estatura(formulario.getEstatura())
+                    .porcGrasa(formulario.getPorcGrasa())
+                    .porcMusculo(formulario.getPorcMusculo())
+                    .porcGrasaVis(formulario.getPorcGrasaVis())
+                    .cintura(formulario.getCintura())
+                    .pecho(formulario.getPecho())
+                    .muslo(formulario.getMuslo())
+                    .fechaDeMedicion(formulario.getFecha())
+                    .build();
 
-            if (ok) {
-                System.out.println("Medición registrada correctamente ");
-            } else {
-                System.out.println("El cliente no tiene instructor asignado ");
+            servicioMedicion.insertarMedicion(medicion);
+            vistaMedicion.mostrarMensaje("Medición registrada exitosamente");
+
+            // Refrescar búsqueda si ya se estaba mostrando este cliente
+            if (vistaMedicion.getTextoBusqueda().equals(formulario.getCedula())) {
+                buscarMedicionesPorCliente();
             }
 
         } catch (Exception e) {
-            System.err.println("Error al registrar medición: " + e.getMessage());
-            e.printStackTrace();
+            vistaMedicion.mostrarError("Error al registrar medición: " + e.getMessage());
         }
+    }
+
+    public void generarReporte() {
+        int fila = vistaMedicion.getFilaSeleccionada();
+        if (fila == -1) {
+            vistaMedicion.mostrarError("Seleccione una medición para generar reporte");
+            return;
+        }
+
+        try {
+            Medicion medicion = vistaMedicion.getMedicionSeleccionada();
+            ControladorCliente controladorCliente = new ControladorCliente();
+            Cliente cliente = controladorCliente.buscarCliente(medicion.getCliente().getCedula());
+            medicion.setCliente(cliente);
+
+            boolean haceEjercicio = JOptionPane.showConfirmDialog(vistaMedicion,
+                    "¿El cliente hace ejercicio regularmente?", "Reporte",
+                    JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+
+            String reporte = medicion.reporteDeMedicion(haceEjercicio);
+            JOptionPane.showMessageDialog(vistaMedicion, reporte, "Reporte de Medición",
+                    JOptionPane.INFORMATION_MESSAGE);
+        } catch (Exception e) {
+            vistaMedicion.mostrarError("Error al generar reporte: " + e.getMessage());
+        }
+    }
+
+    public void handleBuscar() {
+        vistaMedicion.addBuscarListener(e -> buscarMedicionesPorCliente());
+    }
+    public void handleAgregar() {
+        vistaMedicion.addAgregarListener(e -> registrarMedicion());
+    }
+    public void handleReporte() {
+        vistaMedicion.addReporteListener(e -> generarReporte());
+    }
+
+    public void iniciarVentana() {
+        SwingUtilities.invokeLater(() -> {
+            ControladorMedicion controlador = new ControladorMedicion();
+            controlador.handleBuscar();
+            controlador.handleAgregar();
+            controlador.handleReporte();
+        });
+        vistaMedicion.mensajeInicial();
+    }
+
+    public static void main(String[] args) {
+        ControladorMedicion control = new ControladorMedicion();
+        control.iniciarVentana();
     }
 }

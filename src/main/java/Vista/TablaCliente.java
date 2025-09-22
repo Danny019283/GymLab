@@ -1,4 +1,4 @@
-//package Vista;
+package Vista;//package Vista;
 
 
 import java.util.ArrayList;
@@ -11,36 +11,22 @@ import Modelo.Cliente;
  *
  * @author Danny
  */
-/*
+
 public class TablaCliente extends AbstractTableModel{
     private final String[] cols = {"Cedula", "Nombre", "Telefono", "Correo", "Fecha de Nacimiento",
-            "Sexo", "Fecha de inscripción", "Edad", "Instructor"}; //crea las colummnas
+            "Sexo", "Fecha de inscripción", "Edad", "Instructor", "Cod. Sucursal"}; //crea las colummnas
     private final List<Cliente> data = new ArrayList<>(); //data es la Lista donde se van almacenar los clientes
 
-    public void setData(List<Cliente> clientes) {
+    public void refrescarData(List<Cliente> clientes) {
         data.clear(); //limpia antes de cargar los datos
         data.addAll(clientes); //agrega los clientes a la lista interna
-        fireTableDataChanged(); //notifica que lo datos han sigo actualizado entonces refresca la lista
+        fireTableDataChanged(); //notifica que lo datos han sido actualizados entonces refresca la lista
     }
 
-    public Cliente getAt(int row) {
-        return data.get(row); //obtiene el clientes que se encuentra en una fila especifica
-    }
-
-    public void add(Cliente produc) {
-        data.add(produc); //agrega un producto a la tabla
+    public void add(Cliente cliente) {
+        data.add(cliente); //agrega un producto a la tabla
         int fila = data.size() - 1;
         fireTableRowsInserted(fila, fila); //Notifica a todos los oyentes que se han insertado filas en la ultima posicion
-    }
-
-    public void update(int fila, Cliente produc) {
-        data.set(fila, produc);
-        fireTableRowsUpdated(fila, fila); //Notifica a todos los oyentes que se han actualizado en una posicion especifica
-    }
-
-    public void remove(int fila) {
-        data.remove(fila);
-        fireTableRowsDeleted(fila, fila); //Notifica a todos los oyentes que se han eliminado filas en una posicion especifica
     }
 
     //son metodos de un super tipo (propios de Table Model)
@@ -50,15 +36,18 @@ public class TablaCliente extends AbstractTableModel{
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        Cliente c = data.get(rowIndex);
+        Cliente cliente = data.get(rowIndex);
         return switch (columnIndex) {
-            case 0 -> c.getCodigo();
-            case 1 -> c.getNombre();
-            case 2 -> {if (c.isImportado()) {yield "si";} else{yield "no";}}
-            case 3 -> c.getPrecio();
-            case 4 -> c.getTipo().getDescripcion();
-            case 5 -> c.getTipo().getPorcentajeImpuesto();
-            case 6 -> c.PrecioFinal();
+            case 0 -> cliente.getCedula();
+            case 1 -> cliente.getNombre();
+            case 2 -> cliente.getTelefono();
+            case 3 -> cliente.getCorreo();
+            case 4 -> cliente.getFechaNac();
+            case 5 -> cliente.getSexo();
+            case 6 -> cliente.getFechaInscrip();
+            case 7 -> cliente.getEdad();
+            case 8 -> cliente.getInstructor().getCedula();
+            case 9 -> cliente.getSucursal().getCod();
             default -> "";
         };
     }
@@ -75,4 +64,3 @@ public class TablaCliente extends AbstractTableModel{
 
 }
 
-*/
