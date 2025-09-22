@@ -26,6 +26,7 @@ public class VistaCliente extends JFrame {
     private final JButton btnEliminar = new JButton("Eliminar");
     private final JButton btnMatricularClase = new JButton("Matricular Clase");
     private final JButton btnMedicion = new JButton("Medición");
+    private final JButton btnVerRutina = new JButton("Ver Rutina");
 
     private final Color colorFondo = Color.decode("#1a1a1a");
 
@@ -95,12 +96,14 @@ public class VistaCliente extends JFrame {
         configurarBoton(btnEliminar);
         configurarBoton(btnMatricularClase);
         configurarBoton(btnMedicion);
+        configurarBoton(btnVerRutina);
 
         pnlBotones.add(btnAgregar);
         pnlBotones.add(btnModificar);
         pnlBotones.add(btnEliminar);
         pnlBotones.add(btnMatricularClase);
         pnlBotones.add(btnMedicion);
+        pnlBotones.add(btnVerRutina);
 
         pnlContenido.add(pnlBotones, BorderLayout.SOUTH);
 
@@ -114,6 +117,11 @@ public class VistaCliente extends JFrame {
     //JOptions
     public String pedirDato(String mensaje){
         return JOptionPane.showInputDialog(mensaje);
+    }
+
+    public void mostrarToSting(String titulo, String mensaje){
+        VistaCliente vista = new VistaCliente();
+        JOptionPane.showMessageDialog(vista, mensaje, titulo, JOptionPane.INFORMATION_MESSAGE);
     }
 
     //ActionListeners
@@ -130,9 +138,13 @@ public class VistaCliente extends JFrame {
         //redirige a ventana clases
         btnMatricularClase.addActionListener(accion);
     }
-    public void addMeidcionListener(ActionListener accion) {
+    public void addMedicionListener(ActionListener accion) {
         //redirige a historial de medicion
         btnMedicion.addActionListener(accion);
+    }
+
+    public void addVerRutinaListener(ActionListener accion) {
+        btnVerRutina.addActionListener(accion);
     }
 
     private void configurarBoton(JButton boton) {

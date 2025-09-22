@@ -51,13 +51,11 @@ public class Rutina {
 
     @Override
     public String toString() {
-        return "Rutina{" +
-                "pecho='" + pecho + '\'' +
-                ", triceps='" + triceps + '\'' +
-                ", biceps='" + biceps + '\'' +
-                ", piernas='" + piernas + '\'' +
-                ", espalda='" + espalda + '\'' +
-                '}';
+        return "pecho: " + pecho + "\n" +
+                "triceps: " + triceps + "\n" +
+                "biceps: " + biceps + "\n" +
+                "piernas: " + piernas + "\n" +
+                "espalda: " + espalda;
     }
 }
 

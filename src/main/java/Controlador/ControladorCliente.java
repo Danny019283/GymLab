@@ -2,6 +2,7 @@ package Controlador;
 import AccesoADatos.*;
 import Modelo.Cliente;
 import Modelo.Instructor;
+import Modelo.Rutina;
 import Modelo.Sucursal;
 import Vista.FormularioCliente;
 import Vista.VistaCliente;
@@ -83,7 +84,6 @@ public class ControladorCliente {
         String correo = formulario.getCorreo();
         String fechaNac = formulario.getFechaNac();
         String sexo = formulario.getSexo();
-        String fechaInscrip = formulario.getFechaInscrip();
         int edad = formulario.getEdad();
         String instructorId = formulario.getInstructor();
         String sucursalCod = formulario.getSucursal();
@@ -132,6 +132,21 @@ public class ControladorCliente {
         return servicioCliente.listarClientesPorInstructor(cedulaInstructor);
     }
 
+    public void verRutina() throws GlobalException {
+        String cedula = vistaCliente.pedirDato("Ingrese la cedula de cliente");
+        ControladorRutina controladorRutina = new ControladorRutina();
+        Rutina rutina = controladorRutina.buscarRutina(cedula);
+        if (rutina == null) {
+            vistaCliente.mostrarToSting("Error", "No tiene una rutina asignada");
+        }
+        try{
+            vistaCliente.mostrarToSting("Rutina: ", rutina.toString());
+        } catch (Exception e) {
+            vistaCliente.mostrarError("Error al generar reporte: " + e.getMessage());
+        }
+    }
+
+
     ////////////////////////////////ActionListener/Handle
     /////////////////////////////////////////////////////
 
@@ -170,6 +185,27 @@ public class ControladorCliente {
         );
     }
 
+    public void handleMedicion() {
+        ControladorMedicion medicion = new ControladorMedicion();
+        this.vistaCliente.addMedicionListener(e ->
+
+                medicion.iniciarVentana()
+
+        );
+    }
+
+    public void handleVerRutina() {
+        this.vistaCliente.addVerRutinaListener(e ->
+                {
+                    try {
+                        verRutina();
+                    } catch (GlobalException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+        );
+    }
+
     /// ///////////////////////////Cargar datos a la tabla
     /// //////////////////////////////////////////////////////////////
     public void agregarTodosLosClientes() throws NoDataException, GlobalException {
@@ -186,6 +222,8 @@ public class ControladorCliente {
                 controlador.handleRegistrar();
                 controlador.handleModificar();
                 controlador.handleEliminar();
+                controlador.handleMedicion();
+                controlador.handleVerRutina();
 
             } catch (Exception e) {
                 e.printStackTrace();
