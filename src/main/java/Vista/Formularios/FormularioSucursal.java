@@ -63,6 +63,37 @@ public class FormularioSucursal {
         panel.add(campoPanel);
     }
 
+    public boolean validarDatos() {
+        if (getCod().isEmpty() || getProvi().isEmpty() || getCanton().isEmpty() ||
+                getCorreo().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Todos los campos son obligatorios", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        try {
+            int telefono = Integer.parseInt(telefField.getText().trim());
+            if (telefono <= 0) {
+                JOptionPane.showMessageDialog(null, "El teléfono debe ser un número positivo", "Error", JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "El teléfono debe ser un número válido", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        if (!getCorreo().contains("@") || !getCorreo().contains(".")) {
+            JOptionPane.showMessageDialog(null, "Correo electrónico inválido", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        if (getCod().length() < 2) {
+            JOptionPane.showMessageDialog(null, "El código de sucursal debe tener al menos 2 caracteres", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        return true;
+    }
+
     // Métodos get para obtener los valores
     public String getCod() {
         return codField.getText().trim();

@@ -1,6 +1,7 @@
 package AccesoADatos;
 import Modelo.ClaseGrupal;
 import Modelo.Instructor;
+import Vista.Formularios.FormularioMatricula;
 import oracle.jdbc.internal.OracleTypes;
 import java.sql.CallableStatement;
 import java.sql.ResultSet;
@@ -76,7 +77,7 @@ public class ServicioClaseGrupal extends Servicio {
         }
     }
 
-    public void eliminarClaseGrupal(String id) throws GlobalException, NoDataException {
+    public boolean eliminarClaseGrupal(String id) throws GlobalException, NoDataException {
         conectar();
         CallableStatement pstmt = null;
         try {
@@ -84,7 +85,7 @@ public class ServicioClaseGrupal extends Servicio {
             pstmt.setString(1, id);
             int resultado = pstmt.executeUpdate();
             if (resultado == 0) {
-                throw new NoDataException("No se realizo el borrado");
+                return false;
             }
         } catch (SQLException e) {
             throw new GlobalException("Sentencia no valida");
@@ -98,6 +99,7 @@ public class ServicioClaseGrupal extends Servicio {
                 throw new GlobalException("Estatutos invalidos o nulos");
             }
         }
+        return true;
     }
 
     public ClaseGrupal buscarClaseGrupal(String id) throws GlobalException {
@@ -113,7 +115,7 @@ public class ServicioClaseGrupal extends Servicio {
             rs = (ResultSet) pstmt.getObject(1);
             if (rs.next()) {
                 claseGrupal = new ClaseGrupal(
-                        rs.getString("id"),
+                        rs.getString("codigo"),
                         rs.getInt("cupoMax"),
                         rs.getInt("numSalon"),
                         rs.getString("especialidad"),
@@ -142,7 +144,30 @@ public class ServicioClaseGrupal extends Servicio {
         return claseGrupal;
     }
 
-    public String listarClasesGrupales() throws NoDataException, GlobalException {
+    public int matricularCliente() throws NoDataException, GlobalException {
+        FormularioMatricula formularioMatricula = new FormularioMatricula();
+        boolean resultado = formularioMatricula.mostrarDialogo("Matricular Cliente");
+        if (!resultado) {
+            return 3;
+        }
+
+        String cedula = formularioMatricula.getCedulaCliente();
+        String codClase = formularioMatricula.getCodClase();
+
+        ServicioRegistroClases servicioClase = new ServicioRegistroClases();
+        int clasesInscritas = servicioClase.verificarClasesCliente(cedula);
+        if (clasesInscritas >= 3) {
+            return 1; //el cliente ya está incrito en 3 clases
+        }
+        int cuposDisponibles = servicioClase.verificarCupoClase(codClase);
+        if (cuposDisponibles <= 0) {
+            return 2; //no hay cupo
+        }
+        servicioClase.insertarClaseCliente(codClase, cedula);
+        return 0; //se inserto con exito
+    }
+
+    public ArrayList<ClaseGrupal> listarClasesGrupales() throws NoDataException, GlobalException {
         conectar();
         ResultSet rs = null;
         ArrayList<ClaseGrupal> coleccion = new ArrayList<>();
@@ -154,7 +179,7 @@ public class ServicioClaseGrupal extends Servicio {
             rs = (ResultSet) pstmt.getObject(1);
             while (rs.next()) {
                 coleccion.add(new ClaseGrupal(
-                        rs.getString("id"),
+                        rs.getString("codigo"),
                         rs.getInt("cupoMax"),
                         rs.getInt("numSalon"),
                         rs.getString("especialidad"),
@@ -183,6 +208,6 @@ public class ServicioClaseGrupal extends Servicio {
         if (coleccion.size() == 0) {
             throw new NoDataException("No hay datos");
         }
-        return coleccion.toString();
+        return coleccion;
     }
 }

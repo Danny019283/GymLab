@@ -118,7 +118,6 @@ public class ControladorMedicion {
     // Método para mostrar la ventana
     public void mostrarVentana() {
         try {
-            // Configurar todos los listeners una sola vez
             configurarListeners();
             vistaMedicion.setVisible(true);
             vistaMedicion.mensajeInicial();

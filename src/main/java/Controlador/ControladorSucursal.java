@@ -2,22 +2,21 @@ package Controlador;
 
 import AccesoADatos.GlobalException;
 import AccesoADatos.NoDataException;
-import AccesoADatos.ServicioRutina;
 import AccesoADatos.ServicioSucursal;
-import Modelo.Rutina;
 import Modelo.Sucursal;
 import Vista.Formularios.FormularioSucursal;
 import Vista.VistaSucursal;
 
-import javax.swing.*;
 import java.util.ArrayList;
 
 public class ControladorSucursal {
     private final ServicioSucursal servicioSucursal;
     private final VistaSucursal vistaSucursal;
+    private final ControladorClaseGrupal controladorClaseGrupal;
     private Runnable accionAtras;
 
     public ControladorSucursal() {
+        this.controladorClaseGrupal = new ControladorClaseGrupal();
         this.servicioSucursal = new ServicioSucursal();
         this.vistaSucursal = new VistaSucursal();
     }
@@ -141,6 +140,27 @@ public class ControladorSucursal {
         });
     }
 
+    public void handlerClaseGrupal() throws NoDataException, GlobalException {
+
+        this.vistaSucursal.addClaseGrupalListener(e -> {
+
+            // IMPORTANTE: Configurar el botón atrás ANTES de mostrar la ventana
+
+           controladorClaseGrupal.configurarBotonAtras(() -> {
+
+                controladorClaseGrupal.cerrarVentana();
+
+                vistaSucursal.setVisible(true); // Volver a clientes
+
+            });
+
+
+            vistaSucursal.setVisible(false);
+
+           controladorClaseGrupal.mostrarVentana();
+
+        });
+    }
     ///////////////////////////Cargar datos a la tabla
     //////////////////////////////////////////////////
     public void agregarTodasLasSucursales() throws NoDataException, GlobalException {
@@ -172,9 +192,10 @@ public class ControladorSucursal {
     }
 
     // Configurar todos los listeners en un solo método
-    private void configurarListeners() {
+    private void configurarListeners() throws NoDataException, GlobalException {
         handleRegistrar();
         handleModificar();
         handleEliminar();
+        handlerClaseGrupal();
     }
 }

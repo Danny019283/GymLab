@@ -68,6 +68,20 @@ public class FormularioMatricula {
         panel.add(campoPanel);
     }
 
+    public boolean validarDatos() {
+        if (getCedulaCliente().isEmpty() || getCodClase().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Todos los campos son obligatorios", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        if (getCedulaCliente().length() < 9) {
+            JOptionPane.showMessageDialog(null, "La cédula debe tener al menos 9 caracteres", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        return true;
+    }
+
     // Métodos get para obtener los valores
     public String getCedulaCliente() {
         return txtCedulaCliente.getText().trim();

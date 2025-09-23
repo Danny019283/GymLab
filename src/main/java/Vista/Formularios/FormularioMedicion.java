@@ -72,6 +72,41 @@ public class FormularioMedicion {
         panel.add(campoPanel);
     }
 
+    public boolean validarDatos() {
+        if (getCedula().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "La cédula es obligatoria", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        try {
+            float peso = getPeso();
+            float estatura = getEstatura();
+            float porcGrasa = getPorcGrasa();
+            float porcMusculo = getPorcMusculo();
+            float porcGrasaVis = getPorcGrasaVis();
+            float cintura = getCintura();
+            float pecho = getPecho();
+            float muslo = getMuslo();
+
+            if (peso <= 0 || estatura <= 0 || porcGrasa < 0 || porcMusculo < 0 ||
+                    porcGrasaVis < 0 || cintura <= 0 || pecho <= 0 || muslo <= 0) {
+                JOptionPane.showMessageDialog(null, "Todos los valores numéricos deben ser positivos", "Error", JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+
+            if (porcGrasa > 100 || porcMusculo > 100 || porcGrasaVis > 100) {
+                JOptionPane.showMessageDialog(null, "Los porcentajes no pueden ser mayores a 100", "Error", JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Todos los valores deben ser números válidos", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        return true;
+    }
+
     // Getters
     public String getCedula() { return cedulaField.getText().trim(); }
     public float getPeso() { return Float.parseFloat(pesoField.getText().trim()); }

@@ -1,7 +1,6 @@
 package Vista;
 
-import Modelo.ClaseGrupal;
-import Vista.Tablas.TablaSucursal;
+import Vista.Tablas.TablaClaseGrupal;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -9,14 +8,13 @@ import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.ActionListener;
 
-public class VistaSucursal extends JFrame {
-
-    private TablaSucursal tblSucursal = new TablaSucursal();
+public class VistaClaseGrupal extends JFrame {
+    private TablaClaseGrupal tblClaseGrupal = new TablaClaseGrupal();
     private JTable tabla = new JTable();
-    private TableRowSorter<TablaSucursal> sorter;
+    private TableRowSorter<TablaClaseGrupal> sorter;
 
-    public TablaSucursal getTablaSucursal() {
-        return tblSucursal;
+    public TablaClaseGrupal getTablaClaseGrupal() {
+        return tblClaseGrupal;
     }
 
     // Campo para búsqueda
@@ -27,15 +25,15 @@ public class VistaSucursal extends JFrame {
     private final JButton btnAgregar = new JButton("Agregar");
     private final JButton btnModificar = new JButton("Modificar");
     private final JButton btnEliminar = new JButton("Eliminar");
-    private final JButton btnClases = new JButton("Clases Grupales");
+    private final JButton btnListarClientes = new JButton("Listar Clientes");
     private final JButton btnAtras = new JButton("Atras");
 
     private final Color colorFondo = Color.decode("#1a1a1a");
 
-    public VistaSucursal() {
-        setTitle("Gestión de Sucursales - Gym PowerLab");
+    public VistaClaseGrupal() {
+        setTitle("Gestión de Clases Grupales - Gym PowerLab");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(900, 600);
+        setSize(1000, 700);
         setLocationRelativeTo(null);
         buildUI();
     }
@@ -48,7 +46,7 @@ public class VistaSucursal extends JFrame {
         setContentPane(pnlContenido);
 
         // Título con letras amarillas
-        JLabel lblTitulo = new JLabel("Gestión de Sucursales", SwingConstants.CENTER);
+        JLabel lblTitulo = new JLabel("Gestión de Clases Grupales", SwingConstants.CENTER);
         lblTitulo.setFont(new Font("Arial", Font.BOLD, 24));
         lblTitulo.setForeground(Color.YELLOW);
         lblTitulo.setBorder(new EmptyBorder(0, 0, 20, 0));
@@ -73,14 +71,14 @@ public class VistaSucursal extends JFrame {
         pnlArriba.add(pnlBuscarCodigo, BorderLayout.CENTER);
 
         // Centro: tabla
-        tabla = new JTable(tblSucursal);
+        tabla = new JTable(tblClaseGrupal);
         tabla.setRowHeight(24);
         tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tabla.setBackground(new Color(220, 220, 220));
         tabla.setForeground(colorFondo);
         tabla.setFont(new Font("Arial", Font.PLAIN, 12));
 
-        sorter = new TableRowSorter<>(tblSucursal);
+        sorter = new TableRowSorter<>(tblClaseGrupal);
         tabla.setRowSorter(sorter);
 
         JScrollPane scrollPane = new JScrollPane(tabla);
@@ -95,22 +93,16 @@ public class VistaSucursal extends JFrame {
         configurarBoton(btnAgregar);
         configurarBoton(btnModificar);
         configurarBoton(btnEliminar);
-        configurarBoton(btnClases);
+        configurarBoton(btnListarClientes);
         configurarBoton(btnAtras);
 
         pnlBotones.add(btnAgregar);
         pnlBotones.add(btnModificar);
         pnlBotones.add(btnEliminar);
-        pnlBotones.add(btnClases);
+        pnlBotones.add(btnListarClientes);
         pnlBotones.add(btnAtras);
 
         pnlContenido.add(pnlBotones, BorderLayout.SOUTH);
-
-        tabla.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting() && tabla.getSelectedRow() != -1) {
-                // Lógica para cargar datos de la sucursal seleccionada
-            }
-        });
     }
 
     //JOptions
@@ -123,7 +115,7 @@ public class VistaSucursal extends JFrame {
     }
 
     public void mostrarError(String mensaje) {
-        JOptionPane.showMessageDialog(this, mensaje, "Error de validación", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(this, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     //ActionListeners
@@ -139,8 +131,8 @@ public class VistaSucursal extends JFrame {
         btnEliminar.addActionListener(accion);
     }
 
-    public void addClaseGrupalListener(ActionListener accion) {
-        btnClases.addActionListener(accion);
+    public void addListarClientesListener(ActionListener accion) {
+        btnListarClientes.addActionListener(accion);
     }
 
     public void addAtrasListener(ActionListener accion) {
@@ -167,5 +159,17 @@ public class VistaSucursal extends JFrame {
                 boton.setBackground(new Color(200, 200, 200));
             }
         });
+    }
+
+    public String getTextoBusqueda() {
+        return txtBuscarCodigo.getText().trim();
+    }
+
+    public int getFilaSeleccionada() {
+        return tabla.getSelectedRow();
+    }
+
+    public void actualizarTabla() {
+        tblClaseGrupal.fireTableDataChanged();
     }
 }

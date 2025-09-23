@@ -49,6 +49,21 @@ public class FormularioAsignarRutina {
         panel.add(campoPanel);
     }
 
+    public boolean validarDatos() {
+        if (getCedulaCliente().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "La cédula del cliente es obligatoria", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        if (getPecho().isEmpty() && getTriceps().isEmpty() && getBiceps().isEmpty() &&
+                getPiernas().isEmpty() && getEspalda().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Al menos un grupo muscular debe tener ejercicios asignados", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        return true;
+    }
+
     // Métodos get para obtener los valores
     public String getCedulaCliente() {
         return cedulaClienteField.getText().trim();

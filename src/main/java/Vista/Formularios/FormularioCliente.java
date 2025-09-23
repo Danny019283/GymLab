@@ -77,6 +77,29 @@ public class FormularioCliente {
         panel.add(campoPanel);
     }
 
+    public boolean validarDatos() {
+        if (getCedula().isEmpty() || getNombre().isEmpty() || getCorreo().isEmpty() ||
+                getFechaNac().isEmpty() || getInstructor().isEmpty() || getSucursal().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Todos los campos son obligatorios", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        try {
+            Integer.parseInt(telefonoField.getText().trim());
+            Integer.parseInt(edadField.getText().trim());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Teléfono y edad deben ser números válidos", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        if (!getCorreo().contains("@")) {
+            JOptionPane.showMessageDialog(null, "Correo electrónico inválido", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        return true;
+    }
+
     // Métodos get para obtener los valores
     public String getCedula() {
         return cedulaField.getText().trim();
