@@ -3,21 +3,23 @@ package Vista;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 
-public class JFrameMenuPrincipal extends JFrame {
+public class VistaMenuPrincipal extends JFrame {
     private final JButton btnSubMenuCliente = new JButton("Clientes");
     private final JButton btnSubMenuInstructor = new JButton("Instructores");
     private final JButton btnSubmenuSucursal = new JButton("Sucursales");
 
     private final Color colorFondo = Color.decode("#1a1a1a");
 
-    public JFrameMenuPrincipal() {
+    public VistaMenuPrincipal() {
         // Configuración de la ventana principal
         setTitle("Gym PowerLab");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 600);
         setLocationRelativeTo(null);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
         BuildUI();
         setVisible(true);
     }
@@ -86,12 +88,16 @@ public class JFrameMenuPrincipal extends JFrame {
         });
     }
 
+    public void ActionMenuClientes(ActionListener l) {
+        btnSubMenuCliente.addActionListener(l);
+    }
 
-    public static void main(String args[]){
-        SwingUtilities.invokeLater(() -> {
-            try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); } catch (Exception ignored) {}
-            new JFrameMenuPrincipal();
-        });
+    public void ActionMenuInstructor(ActionListener l) {
+        btnSubMenuInstructor.addActionListener(l);
+    }
+
+    public void ActionMenuSucursal(ActionListener l) {
+        btnSubmenuSucursal.addActionListener(l);
     }
 
 }

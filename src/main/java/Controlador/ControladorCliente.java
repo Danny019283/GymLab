@@ -4,10 +4,8 @@ import Modelo.Cliente;
 import Modelo.Instructor;
 import Modelo.Rutina;
 import Modelo.Sucursal;
-import Vista.FormularioCliente;
+import Vista.Formularios.FormularioCliente;
 import Vista.VistaCliente;
-
-import javax.swing.*;
 import java.util.ArrayList;
 
 public class ControladorCliente {
@@ -15,11 +13,14 @@ public class ControladorCliente {
     //////////////////////////////////////////
     private final ServicioCliente servicioCliente;
     private final VistaCliente vistaCliente;
+    private final ControladorMedicion controladorMedicion;
+    private Runnable accionAtras;
 
     //Constructor
     public ControladorCliente() {
         this.servicioCliente = new ServicioCliente();
         this.vistaCliente = new VistaCliente();
+        this.controladorMedicion = new ControladorMedicion();
     }
 
     ////////////////////////////////////////FUNCIONES
@@ -46,8 +47,8 @@ public class ControladorCliente {
         //Construccion de cliente, agregar a BD
         ControladorInstructor controlInstructor = new ControladorInstructor();
         ControladorSucursal controladorSucursal = new ControladorSucursal();
-        Instructor instructor = controlInstructor.servicioInstructor.buscarInstructor(instructorId);
-        Sucursal sucursal = controladorSucursal.servicioSucursal.buscarSucursal(sucursalCod);
+        Instructor instructor = controlInstructor.getServicioInstructor().buscarInstructor(instructorId);
+        Sucursal sucursal = controladorSucursal.getServicioSucursal().buscarSucursal(sucursalCod);
 
         Cliente cliente = new Cliente.Builder()
                 .cedula(cedula)
@@ -136,14 +137,15 @@ public class ControladorCliente {
         String cedula = vistaCliente.pedirDato("Ingrese la cedula de cliente");
         ControladorRutina controladorRutina = new ControladorRutina();
         Rutina rutina = controladorRutina.buscarRutina(cedula);
-        if (rutina == null) {
-            vistaCliente.mostrarToSting("Error", "No tiene una rutina asignada");
+        if (rutina != null) {
+            try{
+                vistaCliente.mostrarToSting("Rutina: ", rutina.toString());
+                return;
+            } catch (Exception e) {
+                vistaCliente.mostrarError("Error al generar reporte: " + e.getMessage());
+            }
         }
-        try{
-            vistaCliente.mostrarToSting("Rutina: ", rutina.toString());
-        } catch (Exception e) {
-            vistaCliente.mostrarError("Error al generar reporte: " + e.getMessage());
-        }
+        vistaCliente.mostrarToSting("Error", "No tiene una rutina asignada");
     }
 
 
@@ -186,12 +188,16 @@ public class ControladorCliente {
     }
 
     public void handleMedicion() {
-        ControladorMedicion medicion = new ControladorMedicion();
-        this.vistaCliente.addMedicionListener(e ->
+        this.vistaCliente.addMedicionListener(e -> {
+            // IMPORTANTE: Configurar el botón atrás ANTES de mostrar la ventana
+            controladorMedicion.configurarBotonAtras(() -> {
+                controladorMedicion.cerrarVentana();
+                vistaCliente.setVisible(true); // Volver a clientes
+            });
 
-                medicion.iniciarVentana()
-
-        );
+            vistaCliente.setVisible(false);
+            controladorMedicion.mostrarVentana();
+        });
     }
 
     public void handleVerRutina() {
@@ -206,36 +212,59 @@ public class ControladorCliente {
         );
     }
 
+    public void handleMatricular() {
+        this.vistaCliente.addMatricularListener(e ->
+                {
+                    try {
+                        ControladorClaseGrupal controladorClaseGrupal = new ControladorClaseGrupal();
+                        int resultadoMatricula = controladorClaseGrupal.matricularCliente();
+                        if (resultadoMatricula == 1) {vistaCliente.mostrarError("El cliente ya esta inscrito a 2 clases.");}
+                        else if (resultadoMatricula == 2) {vistaCliente.mostrarError("No hay cupos disponibles en la clase");}
+                        else if (resultadoMatricula == 0) {vistaCliente.mostrarToSting("Confimacion", "Cliente matriculado con exito.");}
+
+                    } catch (NoDataException ex) {
+                        throw new RuntimeException(ex);
+                    } catch (GlobalException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+
+        );
+    }
+
     /// ///////////////////////////Cargar datos a la tabla
     /// //////////////////////////////////////////////////////////////
     public void agregarTodosLosClientes() throws NoDataException, GlobalException {
         vistaCliente.getTablaCliente().refrescarData(mostrarClientes());
     }
 
-    public void iniciacionDeVentana(){
-        SwingUtilities.invokeLater(() -> {
-            try {
-                ControladorCliente controlador = new ControladorCliente();
-
-                // Aquí conectamos el listener
-                controlador.agregarTodosLosClientes();
-                controlador.handleRegistrar();
-                controlador.handleModificar();
-                controlador.handleEliminar();
-                controlador.handleMedicion();
-                controlador.handleVerRutina();
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+    // Configurar para volver al menú principal
+    public void configurarBotonAtras(Runnable accionAtras) {
+        this.accionAtras = accionAtras;
+        vistaCliente.addAtrasListener(e -> accionAtras.run());
     }
 
-
-    //main
-    public static void main(String[] args) {
-        ControladorCliente control = new ControladorCliente();
-        control.iniciacionDeVentana();
+    public void mostrarVentana() {
+        try {
+            agregarTodosLosClientes();
+            configurarListeners();
+            vistaCliente.setVisible(true);
+        } catch (Exception e) {
+            vistaCliente.mostrarError("Error al cargar datos: " + e.getMessage());
+        }
     }
 
+    public void cerrarVentana() {
+        vistaCliente.setVisible(false);
+        vistaCliente.dispose();
+    }
+
+    private void configurarListeners() {
+        handleRegistrar();
+        handleModificar();
+        handleEliminar();
+        handleMedicion();
+        handleVerRutina();
+        handleMatricular();
+    }
 }

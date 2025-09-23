@@ -16,12 +16,12 @@ public class ServicioRutina extends Servicio {
 
     public ServicioRutina() {}
 
-    public void insertarRutina(Rutina rutina, String id_cliente) throws GlobalException, NoDataException {
+    public void insertarRutina(String cedula, Rutina rutina) throws GlobalException, NoDataException {
         conectar();
         CallableStatement pstmt = null;
         try {
             pstmt = conexion.prepareCall(insertarRutina);
-            pstmt.setString(1, id_cliente);
+            pstmt.setString(1, cedula);
             pstmt.setString(2, rutina.getPecho());
             pstmt.setString(3, rutina.getTriceps());
             pstmt.setString(4, rutina.getBiceps());

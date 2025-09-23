@@ -221,7 +221,7 @@ public class ServicioInstructor extends Servicio {
                 String fechaNac = rs.getString("fechaNac");
                 // Obtener especialidades para cada instructor
                 ArrayList<String> especialidades = obtenerEspecialidadesComoArrayList(cedula);
-                String codSucursal = rs.getString("codigo_sucursal");
+                String codSucursal = rs.getString("cod_sucursal");
 
                 Instructor instructor = new Instructor(cedula, nombre, telefono, correo, fechaNac, especialidades, codSucursal);
                 instructores.add(instructor);

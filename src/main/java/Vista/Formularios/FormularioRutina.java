@@ -1,4 +1,4 @@
-package Vista;
+package Vista.Formularios;
 
 import javax.swing.*;
 import java.awt.*;

@@ -7,12 +7,13 @@ import AccesoADatos.ServicioClaseGrupal;
 import Modelo.ClaseGrupal;
 import Modelo.Cliente;
 import Modelo.Instructor;
+import Vista.Formularios.FormularioMatricula;
 
 import java.util.ArrayList;
 
 public class ControladorClaseGrupal {
-    ServicioClaseGrupal servicioClaseGrupal = new ServicioClaseGrupal();
-    ServicioRegistroClases servicioClase = new ServicioRegistroClases(); //registros de los clientes inscritos
+    private final ServicioClaseGrupal servicioClaseGrupal = new ServicioClaseGrupal();
+    private final ServicioRegistroClases servicioClase = new ServicioRegistroClases(); //registros de los clientes inscritos
     //vista claseGrupal;
 
     public boolean registrarClaseGrupal(String codigo, int cupoMax, int numSalon,
@@ -31,17 +32,26 @@ public class ControladorClaseGrupal {
         return true;
     }
 
-    public boolean matricularCliente(Cliente cliente, ClaseGrupal claseGrupal) throws NoDataException, GlobalException {
-        int clasesInscritas = servicioClase.verificarClasesCliente(cliente.getCedula());
+    public int matricularCliente() throws NoDataException, GlobalException {
+        FormularioMatricula formularioMatricula = new FormularioMatricula();
+        boolean resultado = formularioMatricula.mostrarDialogo("Matricular Cliente");
+        if (!resultado) {
+            return 3;
+        }
+
+        String cedula = formularioMatricula.getCedulaCliente();
+        String codClase = formularioMatricula.getCodClase();
+
+        int clasesInscritas = servicioClase.verificarClasesCliente(cedula);
         if (clasesInscritas >= 3) {
-            return false;
+            return 1; //el cliente ya está incrito en 3 clases
         }
-        int cuposDisponibles = servicioClase.verificarCupoClase(claseGrupal.getCodigo());
+        int cuposDisponibles = servicioClase.verificarCupoClase(codClase);
         if (cuposDisponibles <= 0) {
-            return false;
+            return 2; //no hay cupo
         }
-        servicioClase.insertarClaseCliente(claseGrupal.getCodigo(), cliente.getCedula());
-        return true;
+        servicioClase.insertarClaseCliente(codClase, cedula);
+        return 0; //se inserto con exito
     }
 
     public ArrayList<Cliente> listarClientesPorClase(String codigoClase) throws GlobalException {

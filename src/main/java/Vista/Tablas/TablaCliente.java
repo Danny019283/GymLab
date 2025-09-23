@@ -1,4 +1,4 @@
-package Vista;//package Vista;
+package Vista.Tablas;//package Vista;
 
 
 import java.util.ArrayList;

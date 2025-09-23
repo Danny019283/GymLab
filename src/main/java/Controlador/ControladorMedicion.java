@@ -3,7 +3,7 @@ package Controlador;
 import AccesoADatos.*;
 import Modelo.Medicion;
 import Modelo.Cliente;
-import Vista.FormularioMedicion;
+import Vista.Formularios.FormularioMedicion;
 import Vista.VistaMedicion;
 
 import javax.swing.*;
@@ -110,18 +110,33 @@ public class ControladorMedicion {
         vistaMedicion.addReporteListener(e -> generarReporte());
     }
 
-    public void iniciarVentana() {
-        SwingUtilities.invokeLater(() -> {
-            ControladorMedicion controlador = new ControladorMedicion();
-            controlador.handleBuscar();
-            controlador.handleAgregar();
-            controlador.handleReporte();
-        });
-        vistaMedicion.mensajeInicial();
+    // Método para configurar el botón Atrás
+    public void configurarBotonAtras(Runnable accionAtras) {
+        vistaMedicion.addAtrasListener(e -> accionAtras.run());
     }
 
-    public static void main(String[] args) {
-        ControladorMedicion control = new ControladorMedicion();
-        control.iniciarVentana();
+    // Método para mostrar la ventana
+    public void mostrarVentana() {
+        try {
+            // Configurar todos los listeners una sola vez
+            configurarListeners();
+            vistaMedicion.setVisible(true);
+            vistaMedicion.mensajeInicial();
+        } catch (Exception e) {
+            vistaMedicion.mostrarError("Error al cargar datos: " + e.getMessage());
+        }
+    }
+
+    // Método para cerrar la ventana
+    public void cerrarVentana() {
+        vistaMedicion.setVisible(false);
+        vistaMedicion.dispose();
+    }
+
+    // Configurar todos los listeners en un solo método
+    private void configurarListeners() {
+        handleAgregar();
+        handleBuscar();
+        handleReporte();
     }
 }

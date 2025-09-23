@@ -1,6 +1,7 @@
 package Vista;
 
 import Modelo.Medicion;
+import Vista.Tablas.TablaMedicion;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -17,16 +18,16 @@ public class VistaMedicion extends JFrame {
     private final JButton btnBuscar = new JButton("Buscar");
     private final JButton btnAgregar = new JButton("Agregar");
     private final JButton btnReporte = new JButton("Generar Reporte");
+    private JButton btnAtras = new JButton("Atras");
 
     private final Color colorFondo = Color.decode("#1a1a1a");
 
     public VistaMedicion() {
         setTitle("Historial de Mediciones - Gym PowerLab");
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(1200, 700);
         setLocationRelativeTo(null);
         buildUI();
-        setVisible(true);
     }
 
     public void buildUI() {
@@ -82,9 +83,11 @@ public class VistaMedicion extends JFrame {
 
         configurarBoton(btnAgregar);
         configurarBoton(btnReporte);
+        configurarBoton(btnAtras);
 
         pnlBotones.add(btnAgregar);
         pnlBotones.add(btnReporte);
+        pnlBotones.add(btnAtras);
 
         pnlContenido.add(pnlBotones, BorderLayout.SOUTH);
 
@@ -101,6 +104,7 @@ public class VistaMedicion extends JFrame {
     public void addBuscarListener(ActionListener accion) { btnBuscar.addActionListener(accion); }
     public void addAgregarListener(ActionListener accion) { btnAgregar.addActionListener(accion); }
     public void addReporteListener(ActionListener accion) { btnReporte.addActionListener(accion); }
+    public void addAtrasListener(ActionListener accion) { btnAtras.addActionListener(accion); }
 
     public void mostrarError(String mensaje) {
         JOptionPane.showMessageDialog(this, mensaje, "Error", JOptionPane.ERROR_MESSAGE);

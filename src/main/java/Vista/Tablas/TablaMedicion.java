@@ -1,4 +1,4 @@
-package Vista;
+package Vista.Tablas;
 
 import Modelo.Medicion;
 import javax.swing.table.AbstractTableModel;
