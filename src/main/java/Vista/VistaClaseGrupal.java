@@ -25,7 +25,7 @@ public class VistaClaseGrupal extends JFrame {
     private final JButton btnAgregar = new JButton("Agregar");
     private final JButton btnModificar = new JButton("Modificar");
     private final JButton btnEliminar = new JButton("Eliminar");
-    private final JButton btnListarClientes = new JButton("Listar Clientes");
+    private final JButton btnListarClientes = new JButton("Listar Clientes Por Clase");
     private final JButton btnAtras = new JButton("Atras");
 
     private final Color colorFondo = Color.decode("#1a1a1a");
@@ -139,6 +139,8 @@ public class VistaClaseGrupal extends JFrame {
         btnAtras.addActionListener(accion);
     }
 
+    public void addBuscarListener(ActionListener accion) {btnBuscarCodigo.addActionListener(accion);}
+
     private void configurarBoton(JButton boton) {
         boton.setBackground(new Color(200, 200, 200));
         boton.setForeground(Color.BLACK);
@@ -161,15 +163,8 @@ public class VistaClaseGrupal extends JFrame {
         });
     }
 
-    public String getTextoBusqueda() {
-        return txtBuscarCodigo.getText().trim();
-    }
+    //getters
+    public TableRowSorter<TablaClaseGrupal>  getSorter() {return sorter;}
 
-    public int getFilaSeleccionada() {
-        return tabla.getSelectedRow();
-    }
-
-    public void actualizarTabla() {
-        tblClaseGrupal.fireTableDataChanged();
-    }
+    public String getTxtBuscarCodigo() {return txtBuscarCodigo.getText();}
 }

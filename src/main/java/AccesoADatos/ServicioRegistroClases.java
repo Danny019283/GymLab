@@ -77,7 +77,7 @@ public class ServicioRegistroClases extends Servicio {
         }
     }
 
-    public ArrayList<ClaseGrupal> buscarClasesDeUnCliente(String cedulaCliente) throws GlobalException {
+    public ArrayList<ClaseGrupal> buscarClasesSegunCliente(String cedulaCliente) throws GlobalException {
         conectar();
         ResultSet rs = null;
         ArrayList<ClaseGrupal> clases = new ArrayList<>();
@@ -116,7 +116,7 @@ public class ServicioRegistroClases extends Servicio {
         return clases;
     }
 
-    public ArrayList<Cliente> buscarClientesPorClase(String codigoClase) throws GlobalException {
+    public ArrayList<Cliente> buscarClientesSegunClase(String codigoClase) throws GlobalException {
         conectar();
         ResultSet rs = null;
         ArrayList<Cliente> clientes = new ArrayList<>();
@@ -211,26 +211,5 @@ public class ServicioRegistroClases extends Servicio {
             }
         }
         return totalClases;
-    }
-
-    public static void main(String[] args) {
-        ServicioRegistroClases scc = new ServicioRegistroClases();
-
-        try {
-            // Verificar cupo de una clase
-            int cupos = scc.verificarCupoClase("CLASE001");
-            System.out.println("Cupos disponibles: " + cupos);
-
-            // Verificar clases de un cliente
-            int clasesCliente = scc.verificarClasesCliente("1234567890");
-            System.out.println("Clases inscritas: " + clasesCliente);
-
-            // Buscar clases de un cliente
-            ArrayList<ClaseGrupal> clases = scc.buscarClasesDeUnCliente("1234567890");
-            System.out.println("Clases del cliente: " + clases);
-
-        } catch (GlobalException e) {
-            e.printStackTrace();
-        }
     }
 }

@@ -41,8 +41,7 @@ public class TablaClaseGrupal extends AbstractTableModel {
             case 2 -> claseGrupal.getNumSalon();
             case 3 -> claseGrupal.getEspecialidad();
             case 4 -> claseGrupal.getHorario();
-            case 5 -> claseGrupal.getInstructor() != null ?
-                    claseGrupal.getInstructor().getNombreCom() : "N/A";
+            case 5 -> claseGrupal.getInstructor().getCedula();
             default -> "";
         };
     }

@@ -9,6 +9,7 @@ import Vista.Formularios.FormularioAsignarRutina;
 import Vista.Formularios.FormularioInstructor;
 import Vista.VistaInstructor;
 
+import javax.swing.*;
 import java.util.ArrayList;
 
 public class ControladorInstructor {
@@ -32,14 +33,14 @@ public class ControladorInstructor {
     ////////////////////////////////////////FUNCIONES DE NEGOCIO
     /////////////////////////////////////////////////
 
-    /**
-     * Registra un instructor en la base de datos
-     */
     public void registrarInstructor() throws GlobalException {
         FormularioInstructor formulario = new FormularioInstructor();
         boolean resultado = formulario.mostrarDialogo("Agregar Instructor");
 
         if (!resultado) {
+            return;
+        }
+        if (!formulario.validarDatos()) {
             return;
         }
 
@@ -69,14 +70,14 @@ public class ControladorInstructor {
         }
     }
 
-    /**
-     * Modifica los datos de un instructor existente
-     */
     public void modificarInstructor() throws GlobalException, NoDataException {
         FormularioInstructor formulario = new FormularioInstructor();
         boolean resultado = formulario.mostrarDialogo("Modificar Instructor");
 
         if (!resultado) {
+            return;
+        }
+        if(!formulario.validarDatos()) {
             return;
         }
 
@@ -105,63 +106,46 @@ public class ControladorInstructor {
         }
     }
 
-    /**
-     * Elimina un instructor de la base de datos
-     */
-    public boolean eliminarInstructor() throws GlobalException, NoDataException {
-        String cedula = vistaInstructor.pedirDato("Ingrese la cédula del instructor a eliminar:");
-        if (cedula != null && !cedula.trim().isEmpty()) {
-            servicioInstructor.eliminarInstructor(cedula);
-            vistaInstructor.mensaje("Éxito", "Instructor eliminado correctamente");
-            vistaInstructor.getTablaInstructor().refrescarData(listarInstructores());
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Busca un instructor por su cédula
-     */
     public Instructor buscarInstructor(String cedula) throws GlobalException {
         return servicioInstructor.buscarInstructor(cedula);
     }
 
-    /**
-     * Obtiene la lista de todos los instructores
-     */
     public ArrayList<Instructor> listarInstructores() throws GlobalException {
         return servicioInstructor.listarInstructores();
     }
 
-    /**
-     * Asigna una rutina a un cliente (funcionalidad del instructor)
-     */
     public void asignarRutinaCliente() {
         try {
             FormularioAsignarRutina formulario = new FormularioAsignarRutina();
             boolean resultado = formulario.mostrarDialogo("Asignar Rutina a Cliente");
 
-            if (resultado) {
-                ControladorRutina controladorRutina = new ControladorRutina();
-                String pecho = formulario.getPecho();
-                String triceps = formulario.getTriceps();
-                String biceps = formulario.getBiceps();
-                String piernas = formulario.getPiernas();
-                String espalda = formulario.getEspalda();
-                Rutina rutina = controladorRutina.crearRutina(pecho, triceps, biceps, piernas, espalda);
-                controladorRutina.asignarRutinaACliente(formulario.getCedulaCliente(), rutina);
-
-                vistaInstructor.mensaje("Éxito", "Rutina asignada correctamente al cliente");
+            if (!resultado) {
+                return;
             }
+            if(!formulario.validarDatos()) {
+                return;
+            }
+
+            ControladorRutina controladorRutina = new ControladorRutina();
+            String pecho = formulario.getPecho();
+            String triceps = formulario.getTriceps();
+            String biceps = formulario.getBiceps();
+            String piernas = formulario.getPiernas();
+            String espalda = formulario.getEspalda();
+            Rutina rutina = controladorRutina.crearRutina(pecho, triceps, biceps, piernas, espalda);
+            controladorRutina.asignarRutinaACliente(formulario.getCedulaCliente(), rutina);
+
+            vistaInstructor.mensaje("Éxito", "Rutina asignada correctamente al cliente");
+
         } catch (Exception ex) {
             vistaInstructor.mostrarError("Error al asignar rutina: " + ex.getMessage());
         }
     }
 
-    ////////////////////////////////ActionListener/Handle
+    ////////////////////////////////ActionListener/Handler
     /////////////////////////////////////////////////////
 
-    public void handleRegistrar() {
+    public void handlerRegistrar() {
         this.vistaInstructor.addRegistrarListener(e -> {
             try {
                 registrarInstructor();
@@ -171,7 +155,7 @@ public class ControladorInstructor {
         });
     }
 
-    public void handleModificar() {
+    public void handlerModificar() {
         this.vistaInstructor.addModificarListener(e -> {
             try {
                 modificarInstructor();
@@ -181,28 +165,27 @@ public class ControladorInstructor {
         });
     }
 
-    public void handleEliminar() {
-        this.vistaInstructor.addEliminarListener(e -> {
-            try {
-                eliminarInstructor();
-            } catch (GlobalException | NoDataException ex) {
-                vistaInstructor.mostrarError("Error al eliminar instructor: " + ex.getMessage());
-            }
+    public void handlerAsignarRutina() {
+        this.vistaInstructor.addAsignarRutinaListener(e -> {
+            asignarRutinaCliente();
         });
     }
 
-    public void handleAsignarRutina() {
-        this.vistaInstructor.addAsignarRutinaListener(e -> {
-            asignarRutinaCliente();
+    public void handlerBarraBusqueda () {
+        vistaInstructor.addBuscarListener(e ->
+        {
+            String cedula = vistaInstructor.getTxtBuscarCedula();
+            if (cedula.isEmpty()) {
+                vistaInstructor.getSorter().setRowFilter(null); // mostrar todo
+            } else {
+                vistaInstructor.getSorter().setRowFilter(RowFilter.regexFilter("(?i)" + cedula));
+            }
         });
     }
 
     /// ///////////////////////////Cargar datos a la tabla
     /// //////////////////////////////////////////////////////////////
 
-    /**
-     * Carga todos los instructores en la tabla
-     */
     public void agregarTodosLosInstructores() throws NoDataException, GlobalException {
         vistaInstructor.getTablaInstructor().refrescarData(listarInstructores());
     }
@@ -210,17 +193,11 @@ public class ControladorInstructor {
     ////////////////////////////////CONFIGURACIÓN DE VENTANA
     ///////////////////////////////////////////////////////
 
-    /**
-     * Configura la acción del botón Atrás
-     */
     public void configurarBotonAtras(Runnable accionAtras) {
         this.accionAtras = accionAtras;
         vistaInstructor.addAtrasListener(e -> accionAtras.run());
     }
 
-    /**
-     * Muestra la ventana de gestión de instructores
-     */
     public void mostrarVentana() {
         try {
             agregarTodosLosInstructores();
@@ -231,21 +208,15 @@ public class ControladorInstructor {
         }
     }
 
-    /**
-     * Cierra la ventana de gestión de instructores
-     */
     public void cerrarVentana() {
         vistaInstructor.setVisible(false);
         vistaInstructor.dispose();
     }
 
-    /**
-     * Configura todos los listeners de la interfaz
-     */
     private void configurarListeners() {
-        handleRegistrar();
-        handleModificar();
-        handleEliminar();
-        handleAsignarRutina();
+        handlerRegistrar();
+        handlerModificar();
+        handlerAsignarRutina();
+        handlerBarraBusqueda();
     }
 }

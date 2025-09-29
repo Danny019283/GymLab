@@ -37,7 +37,12 @@ public class ControladorMedicion {
         FormularioMedicion formulario = new FormularioMedicion();
         boolean resultado = formulario.mostrarDialogo("Agregar Medición");
 
-        if (!resultado) return;
+        if (!resultado) {
+            return;
+        }
+        if(!formulario.validarDatos()) {
+            return;
+        }
 
         try {
             // Buscar cliente

@@ -1,5 +1,6 @@
 package Vista;
 
+import Modelo.ClaseGrupal;
 import Vista.Tablas.TablaCliente;
 
 import javax.swing.*;
@@ -7,6 +8,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 public class VistaCliente extends JFrame {
 
@@ -27,6 +29,7 @@ public class VistaCliente extends JFrame {
     private final JButton btnModificar = new JButton("Modificar");
     private final JButton btnEliminar = new JButton("Eliminar");
     private final JButton btnMatricularClase = new JButton("Matricular Clase");
+    private final JButton btnListarClases = new JButton("Listar Clases");
     private final JButton btnMedicion = new JButton("Medición");
     private final JButton btnVerRutina = new JButton("Ver Rutina");
     private final JButton btnAtras = new  JButton("Atras");
@@ -97,6 +100,7 @@ public class VistaCliente extends JFrame {
         configurarBoton(btnModificar);
         configurarBoton(btnEliminar);
         configurarBoton(btnMatricularClase);
+        configurarBoton(btnListarClases);
         configurarBoton(btnMedicion);
         configurarBoton(btnVerRutina);
         configurarBoton(btnAtras);
@@ -105,6 +109,7 @@ public class VistaCliente extends JFrame {
         pnlBotones.add(btnModificar);
         pnlBotones.add(btnEliminar);
         pnlBotones.add(btnMatricularClase);
+        pnlBotones.add(btnListarClases);
         pnlBotones.add(btnMedicion);
         pnlBotones.add(btnVerRutina);
         pnlBotones.add(btnAtras);
@@ -123,9 +128,21 @@ public class VistaCliente extends JFrame {
         return JOptionPane.showInputDialog(mensaje);
     }
 
-    public void mostrarToSting(String titulo, String mensaje){
+    public void mostrarMensaje(String titulo, String mensaje){
         VistaCliente vista = new VistaCliente();
         JOptionPane.showMessageDialog(vista, mensaje, titulo, JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    public void mostrarError(String mensaje) {
+        JOptionPane.showMessageDialog(this, mensaje, "Error de validación", JOptionPane.ERROR_MESSAGE);
+    }
+
+    public void mostrarClases(ArrayList<ClaseGrupal> clases) {
+        StringBuilder mostrar = new StringBuilder();
+        for (ClaseGrupal clase: clases) {
+            mostrar.append(clase.toString()).append("\n");
+        }
+        JOptionPane.showMessageDialog(this, mostrar.toString(), "Clases", JOptionPane.INFORMATION_MESSAGE);
     }
 
     //ActionListeners
@@ -153,6 +170,10 @@ public class VistaCliente extends JFrame {
     public void addVerRutinaListener(ActionListener accion) {
         btnVerRutina.addActionListener(accion);
     }
+
+    public void addBuscarListener(ActionListener accion) {btnBuscarCedula.addActionListener(accion);}
+
+    public void addListarClasesListener(ActionListener accion) {btnListarClases.addActionListener(accion);}
 
     private void configurarBoton(JButton boton) {
         boton.setBackground(new Color(200, 200, 200)); // Gris claro
@@ -182,32 +203,13 @@ public class VistaCliente extends JFrame {
         tabla.clearSelection();
     }
 
-    // Método para obtener el texto de búsqueda
+    // Getteres
     public String getTextoBusqueda() {
         return txtBuscarCedula.getText().trim();
     }
 
-    // Método para mostrar mensajes de validación
-    public void mostrarError(String mensaje) {
-        JOptionPane.showMessageDialog(this, mensaje, "Error de validación", JOptionPane.ERROR_MESSAGE);
+    public TableRowSorter<TablaCliente> getSorter() {
+        return sorter;
     }
 
-    // Método para obtener la fila seleccionada en la tabla
-    public int getFilaSeleccionada() {
-        return tabla.getSelectedRow();
-    }
-
-    // Método para actualizar la tabla
-    public void actualizarTabla() {
-        tblCliente.fireTableDataChanged();
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            try {
-                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            } catch (Exception ignored) {}
-            new VistaCliente();
-        });
-    }
 }

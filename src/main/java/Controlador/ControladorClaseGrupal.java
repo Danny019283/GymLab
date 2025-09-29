@@ -11,6 +11,7 @@ import Vista.Formularios.FormularioClaseGrupal;
 import Vista.Formularios.FormularioMatricula;
 import Vista.VistaClaseGrupal;
 
+import javax.swing.*;
 import java.util.ArrayList;
 
 public class ControladorClaseGrupal {
@@ -35,6 +36,9 @@ public class ControladorClaseGrupal {
         boolean resultado = formulario.mostrarDialogo("Agregar Clase Grupal");
 
         if (!resultado) {
+            return;
+        }
+        if(!formulario.validarDatos()) {
             return;
         }
 
@@ -77,6 +81,9 @@ public class ControladorClaseGrupal {
         boolean resultado = formulario.mostrarDialogo("Modificar Clase Grupal");
 
         if (!resultado) {
+            return;
+        }
+        if(!formulario.validarDatos()) {
             return;
         }
 
@@ -132,7 +139,7 @@ public class ControladorClaseGrupal {
         return servicioClaseGrupal.buscarClaseGrupal(codigo);
     }
 
-    public ArrayList<ClaseGrupal> mostrarClasesGrupales() throws GlobalException, NoDataException {
+    public ArrayList<ClaseGrupal> mostrarClasesGrupales() throws GlobalException {
         return servicioClaseGrupal.listarClasesGrupales();
     }
 
@@ -142,7 +149,7 @@ public class ControladorClaseGrupal {
             return;
         }
 
-        ArrayList<Cliente> clientes = servicioRegistroClases.buscarClientesPorClase(codigoClase);
+        ArrayList<Cliente> clientes = servicioRegistroClases.buscarClientesSegunClase(codigoClase);
 
         if (clientes != null && !clientes.isEmpty()) {
             StringBuilder sb = new StringBuilder();
@@ -156,7 +163,6 @@ public class ControladorClaseGrupal {
         }
     }
 
-    // MÉTODO ORIGINAL QUE NO DEBÍ TOCAR
     public int matricularCliente() throws NoDataException, GlobalException {
         FormularioMatricula formularioMatricula = new FormularioMatricula();
         boolean resultado = formularioMatricula.mostrarDialogo("Matricular Cliente");
@@ -181,7 +187,7 @@ public class ControladorClaseGrupal {
 
     ////////////////////////////////ActionListener/Handle
     /////////////////////////////////////////////////////
-    public void handleRegistrar() {
+    public void handlerRegistrar() {
         this.vistaClaseGrupal.addRegistrarListener(e -> {
             try {
                 registrarClaseGrupal();
@@ -191,7 +197,7 @@ public class ControladorClaseGrupal {
         });
     }
 
-    public void handleModificar() {
+    public void handlerModificar() {
         this.vistaClaseGrupal.addModificarListener(e -> {
             try {
                 modificarClaseGrupal();
@@ -201,7 +207,7 @@ public class ControladorClaseGrupal {
         });
     }
 
-    public void handleEliminar() {
+    public void handlerEliminar() {
         this.vistaClaseGrupal.addEliminarListener(e -> {
             try {
                 eliminarClaseGrupal();
@@ -211,7 +217,7 @@ public class ControladorClaseGrupal {
         });
     }
 
-    public void handleListarClientes() {
+    public void handlerListarClientes() {
         this.vistaClaseGrupal.addListarClientesListener(e -> {
             try {
                 listarClientesPorClase();
@@ -221,7 +227,19 @@ public class ControladorClaseGrupal {
         });
     }
 
-    // Configurar para volver al menú principal
+    public void handlerBarraBusqueda() {
+        this.vistaClaseGrupal.addBuscarListener(e ->
+        {
+            String codigo = vistaClaseGrupal.getTxtBuscarCodigo();
+            if (codigo.isEmpty()) {
+                vistaClaseGrupal.getSorter().setRowFilter(null); // mostrar todo
+            } else {
+                vistaClaseGrupal.getSorter().setRowFilter(RowFilter.regexFilter("(?i)" + codigo));
+            }
+        });
+    }
+
+    // Configurar para volver al menu anterior
     public void configurarBotonAtras(Runnable accionAtras) {
         this.accionAtras = accionAtras;
         vistaClaseGrupal.addAtrasListener(e -> accionAtras.run());
@@ -243,22 +261,15 @@ public class ControladorClaseGrupal {
     }
 
     private void configurarListeners() {
-        handleRegistrar();
-        handleModificar();
-        handleEliminar();
-        handleListarClientes();
+        handlerRegistrar();
+        handlerModificar();
+        handlerEliminar();
+        handlerListarClientes();
+        handlerBarraBusqueda();
     }
 
     public void agregarTodasLasClasesGrupales() throws NoDataException, GlobalException {
         vistaClaseGrupal.getTablaClaseGrupal().refrescarData(mostrarClasesGrupales());
     }
 
-    // Getters para los servicios si son necesarios
-    public ServicioClaseGrupal getServicioClaseGrupal() {
-        return servicioClaseGrupal;
-    }
-
-    public ServicioRegistroClases getServicioRegistroClases() {
-        return servicioRegistroClases;
-    }
 }

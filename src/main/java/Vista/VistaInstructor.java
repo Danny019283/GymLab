@@ -25,7 +25,6 @@ public class VistaInstructor extends JFrame {
     private final JButton btnBuscarCedula = new JButton("Buscar");
     private final JButton btnAgregar = new JButton("Agregar");
     private final JButton btnModificar = new JButton("Modificar");
-    private final JButton btnEliminar = new JButton("Eliminar");
     private final JButton btnAsignarRutina = new JButton("Asignar Rutina a Cliente");
     private final JButton btnAtras = new JButton("Atras");
 
@@ -93,13 +92,11 @@ public class VistaInstructor extends JFrame {
 
         configurarBoton(btnAgregar);
         configurarBoton(btnModificar);
-        configurarBoton(btnEliminar);
         configurarBoton(btnAsignarRutina);
         configurarBoton(btnAtras);
 
         pnlBotones.add(btnAgregar);
         pnlBotones.add(btnModificar);
-        pnlBotones.add(btnEliminar);
         pnlBotones.add(btnAsignarRutina);
         pnlBotones.add(btnAtras);
 
@@ -128,10 +125,6 @@ public class VistaInstructor extends JFrame {
         btnModificar.addActionListener(accion);
     }
 
-    public void addEliminarListener(ActionListener accion) {
-        btnEliminar.addActionListener(accion);
-    }
-
     public void addAsignarRutinaListener(ActionListener accion) {
         btnAsignarRutina.addActionListener(accion);
     }
@@ -139,6 +132,8 @@ public class VistaInstructor extends JFrame {
     public void addAtrasListener(ActionListener accion) {
         btnAtras.addActionListener(accion);
     }
+
+    public void addBuscarListener(ActionListener accion) {btnBuscarCedula.addActionListener(accion);}
 
     private void configurarBoton(JButton boton) {
         boton.setBackground(new Color(200, 200, 200));
@@ -162,12 +157,12 @@ public class VistaInstructor extends JFrame {
         });
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            try {
-                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            } catch (Exception ignored) {}
-            new VistaInstructor().setVisible(true);
-        });
+    //getters
+    public TableRowSorter<TablaInstructor> getSorter () {
+        return this.sorter;
+    }
+
+    public String getTxtBuscarCedula() {
+        return this.txtBuscarCedula.getText();
     }
 }

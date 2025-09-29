@@ -7,6 +7,7 @@ import Modelo.Sucursal;
 import Vista.Formularios.FormularioSucursal;
 import Vista.VistaSucursal;
 
+import javax.swing.*;
 import java.util.ArrayList;
 
 public class ControladorSucursal {
@@ -32,6 +33,9 @@ public class ControladorSucursal {
         boolean resultado = formulario.mostrarDialogo("Agregar Sucursal");
 
         if (!resultado) {
+            return;
+        }
+        if(!formulario.validarDatos()) {
             return;
         }
 
@@ -89,17 +93,6 @@ public class ControladorSucursal {
         }
     }
 
-    public boolean eliminarSucursal() throws GlobalException, NoDataException {
-        String cod = vistaSucursal.pedirDato("Ingrese el código de la sucursal a eliminar:");
-        if (cod != null && !cod.trim().isEmpty()) {
-            servicioSucursal.eliminarSucursal(cod);
-            vistaSucursal.getTablaSucursal().refrescarData(listarSucursales());
-            vistaSucursal.mostrarToSting("Éxito", "Sucursal eliminada correctamente");
-            return true;
-        }
-        return false;
-    }
-
     public Sucursal buscarSucursal(String cod) throws GlobalException {
         return servicioSucursal.buscarSucursal(cod);
     }
@@ -110,7 +103,7 @@ public class ControladorSucursal {
 
     ////////////////////////////////ActionListener/Handle
     /////////////////////////////////////////////////////
-    public void handleRegistrar() {
+    public void handlerRegistrar() {
         this.vistaSucursal.addRegistrarListener(e -> {
             try {
                 registrarSucursal();
@@ -120,22 +113,12 @@ public class ControladorSucursal {
         });
     }
 
-    public void handleModificar() {
+    public void handlerModificar() {
         this.vistaSucursal.addModificarListener(e -> {
             try {
                 modificarSucursal();
             } catch (GlobalException | NoDataException ex) {
                 vistaSucursal.mostrarError("Error al modificar: " + ex.getMessage());
-            }
-        });
-    }
-
-    public void handleEliminar() {
-        this.vistaSucursal.addEliminarListener(e -> {
-            try {
-                eliminarSucursal();
-            } catch (GlobalException | NoDataException ex) {
-                vistaSucursal.mostrarError("Error al eliminar: " + ex.getMessage());
             }
         });
     }
@@ -159,6 +142,18 @@ public class ControladorSucursal {
 
            controladorClaseGrupal.mostrarVentana();
 
+        });
+    }
+
+    public void handlerBarraBusqueda() {
+        vistaSucursal.addBuscarListener(e ->
+        {
+            String cedula = vistaSucursal.getTxtBuscarCodigo();
+            if (cedula.isEmpty()) {
+                vistaSucursal.getSorter().setRowFilter(null); // mostrar todo
+            } else {
+                vistaSucursal.getSorter().setRowFilter(RowFilter.regexFilter("(?i)" + cedula));
+            }
         });
     }
     ///////////////////////////Cargar datos a la tabla
@@ -193,9 +188,9 @@ public class ControladorSucursal {
 
     // Configurar todos los listeners en un solo método
     private void configurarListeners() throws NoDataException, GlobalException {
-        handleRegistrar();
-        handleModificar();
-        handleEliminar();
+        handlerRegistrar();
+        handlerModificar();
         handlerClaseGrupal();
+        handlerBarraBusqueda();
     }
 }

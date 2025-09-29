@@ -26,7 +26,6 @@ public class VistaSucursal extends JFrame {
     private final JButton btnBuscarCodigo = new JButton("Buscar");
     private final JButton btnAgregar = new JButton("Agregar");
     private final JButton btnModificar = new JButton("Modificar");
-    private final JButton btnEliminar = new JButton("Eliminar");
     private final JButton btnClases = new JButton("Clases Grupales");
     private final JButton btnAtras = new JButton("Atras");
 
@@ -94,13 +93,11 @@ public class VistaSucursal extends JFrame {
 
         configurarBoton(btnAgregar);
         configurarBoton(btnModificar);
-        configurarBoton(btnEliminar);
         configurarBoton(btnClases);
         configurarBoton(btnAtras);
 
         pnlBotones.add(btnAgregar);
         pnlBotones.add(btnModificar);
-        pnlBotones.add(btnEliminar);
         pnlBotones.add(btnClases);
         pnlBotones.add(btnAtras);
 
@@ -135,10 +132,6 @@ public class VistaSucursal extends JFrame {
         btnModificar.addActionListener(accion);
     }
 
-    public void addEliminarListener(ActionListener accion) {
-        btnEliminar.addActionListener(accion);
-    }
-
     public void addClaseGrupalListener(ActionListener accion) {
         btnClases.addActionListener(accion);
     }
@@ -146,6 +139,8 @@ public class VistaSucursal extends JFrame {
     public void addAtrasListener(ActionListener accion) {
         btnAtras.addActionListener(accion);
     }
+
+    public void addBuscarListener(ActionListener accion) {btnBuscarCodigo.addActionListener(accion);}
 
     private void configurarBoton(JButton boton) {
         boton.setBackground(new Color(200, 200, 200));
@@ -168,4 +163,10 @@ public class VistaSucursal extends JFrame {
             }
         });
     }
+
+    //getters
+    public TableRowSorter<TablaSucursal> getSorter() {return this.sorter; }
+
+    public String getTxtBuscarCodigo() {return this.txtBuscarCodigo.getText(); }
+
 }

@@ -58,14 +58,12 @@ public class ClaseGrupal {
 
     @Override
     public String toString() {
-        return "ClaseGrupal{" +
-                "id='" + codigo + '\'' +
-                ", cupoMax=" + cupoMax +
-                ", numSalon=" + numSalon +
-                ", especialidad='" + especialidad + '\'' +
-                ", horario='" + horario + '\'' +
-                ", instructor=" + (instructor != null ? instructor.getNombreCom() : "N/A") +
-                '}';
+        return "Codigo: " + codigo + "\n" +
+                "Cupo Maximo: " + cupoMax + "\n" +
+                "Num Salon: " + numSalon + "\n" +
+                "Especialidad: " + especialidad + "\n" +
+                "Horario: " + horario + "\n" +
+                "Instructor: " + (instructor.getCedula()) + "\n";
         
     }
 }

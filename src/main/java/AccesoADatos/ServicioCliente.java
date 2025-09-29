@@ -99,20 +99,21 @@ public class ServicioCliente extends Servicio {
     public boolean eliminarCliente(String cedula) throws GlobalException {
         conectar();
 
-        PreparedStatement pstmt = null;
+        CallableStatement pstmt = null;  // Cambiar a CallableStatement
         try {
-            pstmt = conexion.prepareStatement(eliminarCliente);
+            pstmt = conexion.prepareCall(eliminarCliente);  // Usar prepareCall
             pstmt.setString(1, cedula);
 
-            int resultado = pstmt.executeUpdate();
+            int resultado = pstmt.executeUpdate();  // Esto debería funcionar con CallableStatement
 
             if (resultado == 0) {
-                throw new NoDataException("No se realizo el borrado");
+                return false;
             } else {
                 return true;
             }
-        } catch (SQLException | NoDataException e) {
-            throw new GlobalException("Sentencia no valida");
+        } catch (SQLException e) {
+            e.printStackTrace();  // Agregar esto para ver el error específico
+            throw new GlobalException("Error al eliminar cliente: " + e.getMessage());
         } finally {
             try {
                 if (pstmt != null) {
@@ -188,7 +189,7 @@ public class ServicioCliente extends Servicio {
         return cliente;
     }
 
-    public ArrayList<Cliente> listarClientes() throws NoDataException, GlobalException {
+    public ArrayList<Cliente> listarClientes() throws GlobalException {
         conectar();
         ResultSet rs = null;
         ArrayList<Cliente> coleccion = new ArrayList<>();
@@ -233,9 +234,6 @@ public class ServicioCliente extends Servicio {
             } catch (SQLException e) {
                 throw new GlobalException("Estatutos invalidos o nulos");
             }
-        }
-        if (coleccion.size() == 0) {
-            throw new NoDataException("No hay datos");
         }
         return coleccion;
     }

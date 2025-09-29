@@ -167,7 +167,7 @@ public class ServicioClaseGrupal extends Servicio {
         return 0; //se inserto con exito
     }
 
-    public ArrayList<ClaseGrupal> listarClasesGrupales() throws NoDataException, GlobalException {
+    public ArrayList<ClaseGrupal> listarClasesGrupales() throws GlobalException {
         conectar();
         ResultSet rs = null;
         ArrayList<ClaseGrupal> coleccion = new ArrayList<>();
@@ -204,9 +204,6 @@ public class ServicioClaseGrupal extends Servicio {
             } catch (SQLException e) {
                 throw new GlobalException("Estatutos invalidos o nulos");
             }
-        }
-        if (coleccion.size() == 0) {
-            throw new NoDataException("No hay datos");
         }
         return coleccion;
     }

@@ -183,9 +183,6 @@ public class ServicioSucursal extends Servicio {
             }
         }
 
-        if (sucursales.isEmpty()) {
-            throw new NoDataException("No hay datos");
-        }
         return sucursales;
     }
 
