@@ -5,11 +5,11 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Servicio {
+public class Conexion {
 
     protected Connection conexion = null;
 
-    public Servicio() {
+    public Conexion() {
 
     }
 
@@ -22,7 +22,7 @@ public class Servicio {
             String password = "7R807hur";
             conexion = DriverManager.getConnection(url,username,password);
         } catch (ClassNotFoundException | SQLException ex) {
-            Logger.getLogger(Servicio.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
@@ -34,13 +34,13 @@ public class Servicio {
         }
     }
     public static void main(String[] args) {
-        Servicio s = new Servicio();
+        Conexion s = new Conexion();
         try {
             s.conectar();
             System.out.println("Conexion");
             s.desconectar();
         } catch (SQLException ex) {
-            Logger.getLogger(Servicio.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }

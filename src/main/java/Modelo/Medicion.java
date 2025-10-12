@@ -4,6 +4,7 @@
  */
 package Modelo;
 import java.time.LocalDate;
+import Modelo.DTOs.MedicionDTO;
 
 /**
  *
@@ -32,6 +33,7 @@ public class Medicion {
         this.cintura = 0.0f;
         this.pecho = 0.0f;
         this.muslo = 0.0f;
+        this.fechaDeMedicion = LocalDate.now();
     }
 
     // Constructor con todos los atributos
@@ -49,7 +51,6 @@ public class Medicion {
         this.muslo = muslo;
         this.fechaDeMedicion = fechaDeMedicion;
     }
-
 
     // Constructor con Builder
     public Medicion(Builder builder) {
@@ -87,11 +88,11 @@ public class Medicion {
             return this;
         }
 
-        public  Builder estatura(float estatura) {
+        public Builder estatura(float estatura) {
             this.estatura = estatura;
             return this;
         }
-        //crea los demas con el mismo formato
+
         public Builder porcGrasa(float porcGrasa) {
             this.porcGrasa = porcGrasa;
             return this;
@@ -132,6 +133,38 @@ public class Medicion {
         }
     }
 
+    // Método para convertir de DTO a Entidad
+    public static Medicion fromDTO(MedicionDTO dto, Cliente cliente) {
+        Medicion medicion = new Medicion();
+        medicion.setCliente(cliente);
+        medicion.setPeso(dto.getPeso());
+        medicion.setEstatura(dto.getEstatura());
+        medicion.setPorcGrasa(dto.getPorcGrasa());
+        medicion.setPorcMusculo(dto.getPorcMusculo());
+        medicion.setPorcGrasaVis(dto.getPorcGrasaVis());
+        medicion.setCintura(dto.getCintura());
+        medicion.setPecho(dto.getPecho());
+        medicion.setMuslo(dto.getMuslo());
+        medicion.setFechaDeMedicion(dto.getFechaDeMedicion());
+        return medicion;
+    }
+
+    // Método para convertir de Entidad a DTO
+    public MedicionDTO toDTO() {
+        return new MedicionDTO.Builder()
+                .cedulaCliente(this.cliente != null ? this.cliente.getCedula() : "")
+                .peso(this.peso)
+                .estatura(this.estatura)
+                .porcGrasa(this.porcGrasa)
+                .porcMusculo(this.porcMusculo)
+                .porcGrasaVis(this.porcGrasaVis)
+                .cintura(this.cintura)
+                .pecho(this.pecho)
+                .muslo(this.muslo)
+                .fechaDeMedicion(this.fechaDeMedicion)
+                .build();
+    }
+
     // Getters y Setters
     public Cliente getCliente() { return cliente; }
     public void setCliente(Cliente cliente) { this.cliente = cliente; }
@@ -162,6 +195,7 @@ public class Medicion {
 
     public float getMuslo() { return muslo; }
     public void setMuslo(float muslo) { this.muslo = muslo; }
+
     public float calcularIMC() {
         return this.peso / (this.estatura * this.estatura);
     }
@@ -247,5 +281,4 @@ public class Medicion {
                 "Cantidad recomendada de vasos de agua por día: " + String.format("%.2f", calcCantVasosDeAguaDia()) + " ml\n" +
                 "Cantidad recomendada de proteínas por día: " + String.format("%.2f", calcCantProteinasDia(haceEjercicio)) + " g\n";
     }
-
 }

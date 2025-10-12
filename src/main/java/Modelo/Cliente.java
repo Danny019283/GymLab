@@ -4,7 +4,8 @@
  */
 package Modelo;
 
-import AccesoADatos.ServicioMedicion;
+import AccesoADatos.DAOMedicion;
+import Modelo.DTOs.ClienteDTO;
 
 /**
  *
@@ -19,9 +20,9 @@ public class Cliente {
     private String sexo;
     private String fechaInscrip;
     private int edad;
-    private Instructor instructor;
-    private Sucursal sucursal;
-    private ServicioMedicion mediciones;
+    private String instructor;
+    private String sucursal;
+    private DAOMedicion mediciones;
 
     // Constructor vacío
     public Cliente() {
@@ -35,13 +36,13 @@ public class Cliente {
         this.edad = 0;
         this.instructor = new Instructor();
         this.sucursal = new Sucursal();
-        this.mediciones = new ServicioMedicion();
+        this.mediciones = new DAOMedicion();
     }
 
     // Constructor con todos los atributos
     public Cliente(String cedula, String nombre, int edad, int telefono, String correo,
                    String fechaNac, String sexo, String fechaInscrip,
-                   Instructor instructor, Sucursal sucursal) {
+                   String instructor, String sucursal) {
         this.cedula = cedula;
         this.nombre = nombre;
         this.telefono = telefono;
@@ -77,8 +78,8 @@ public class Cliente {
         private String sexo;
         private String fechaInscrip;
         private int edad;
-        private Instructor instructor;
-        private Sucursal sucursal;
+        private String instructor;
+        private String sucursal;
 
         public Builder cedula(String cedula) {
             this.cedula = cedula;
@@ -120,12 +121,12 @@ public class Cliente {
             return this;
         }
 
-        public Builder instructor(Instructor instructor) {
+        public Builder instructor(String instructor) {
             this.instructor = instructor;
             return this;
         }
 
-        public Builder sucursal(Sucursal sucursal) {
+        public Builder sucursal(String sucursal) {
             this.sucursal = sucursal;
             return this;
         }
@@ -133,6 +134,36 @@ public class Cliente {
         public Cliente build() {
             return new Cliente(this);
         }
+    }
+
+    public static Cliente fromDTO(ClienteDTO dto) {
+        Cliente cliente = new Cliente();
+        cliente.setCedula(dto.getCedula());
+        cliente.setNombre(dto.getNombre());
+        cliente.setTelefono(dto.getTelefono());
+        cliente.setCorreo(dto.getCorreo());
+        cliente.setFechaNac(dto.getFechaNac());
+        cliente.setSexo(dto.getSexo());
+        cliente.setFechaInscrip(dto.getFechaInscrip());
+        cliente.setEdad(dto.getEdad());
+        cliente.setInstructor(dto.getInstructor());
+        cliente.setSucursal(dto.getSucursal());
+        return cliente;
+    }
+
+    public ClienteDTO toDTO() {
+        return new ClienteDTO.Builder()
+                .cedula(this.cedula)
+                .nombre(this.nombre)
+                .telefono(this.telefono)
+                .correo(this.correo)
+                .fechaNac(this.fechaNac)
+                .sexo(this.sexo)
+                .fechaInscrip(this.fechaInscrip)
+                .edad(this.edad)
+                .instructor(this.instructor)
+                .sucursal(this.sucursal)
+                .build();
     }
 
     // Getters y Setters
@@ -160,19 +191,15 @@ public class Cliente {
     public int getEdad() { return edad; }
     public void setEdad(int edad) { this.edad = edad; }
 
-    public Instructor getInstructor() { return instructor; }
-    public void setInstructor(Instructor instructor) { this.instructor = instructor; }
+    public String getInstructor() { return instructor; }
+    public void setInstructor(String instructor) { this.instructor = instructor; }
 
-    public Sucursal getSucursal() {
+    public String getSucursal() {
         return sucursal;
     }
-    public void setSucursal(Sucursal sucursal) {
+    public void setSucursal(String sucursal) {
         this.sucursal = sucursal;
     }
-
-    public ServicioMedicion getMediciones() { return mediciones; }
-    public void setMediciones(ServicioMedicion mediciones) { this.mediciones = mediciones; }
-
     @Override
     public String toString() {
         return "Cliente{" +
@@ -189,4 +216,3 @@ public class Cliente {
                 '}';
     }
 }
-

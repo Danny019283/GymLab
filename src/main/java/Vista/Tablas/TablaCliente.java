@@ -4,7 +4,7 @@ package Vista.Tablas;//package Vista;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
-import Modelo.Cliente;
+import Modelo.DTOs.ClienteDTO;
 
 
 /**
@@ -15,15 +15,15 @@ import Modelo.Cliente;
 public class TablaCliente extends AbstractTableModel{
     private final String[] cols = {"Cedula", "Nombre", "Telefono", "Correo", "Fecha de Nacimiento",
             "Sexo", "Fecha de inscripción", "Edad", "Instructor", "Cod. Sucursal"}; //crea las colummnas
-    private final List<Cliente> data = new ArrayList<>(); //data es la Lista donde se van almacenar los clientes
+    private final List<ClienteDTO> data = new ArrayList<>(); //data es la Lista donde se van almacenar los clientes
 
-    public void refrescarData(List<Cliente> clientes) {
+    public void refrescarData(List<ClienteDTO> clientes) {
         data.clear(); //limpia antes de cargar los datos
         data.addAll(clientes); //agrega los clientes a la lista interna
         fireTableDataChanged(); //notifica que lo datos han sido actualizados entonces refresca la lista
     }
 
-    public void add(Cliente cliente) {
+    public void add(ClienteDTO cliente) {
         data.add(cliente); //agrega un producto a la tabla
         int fila = data.size() - 1;
         fireTableRowsInserted(fila, fila); //Notifica a todos los oyentes que se han insertado filas en la ultima posicion
@@ -36,7 +36,7 @@ public class TablaCliente extends AbstractTableModel{
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        Cliente cliente = data.get(rowIndex);
+        ClienteDTO cliente = data.get(rowIndex);
         return switch (columnIndex) {
             case 0 -> cliente.getCedula();
             case 1 -> cliente.getNombre();

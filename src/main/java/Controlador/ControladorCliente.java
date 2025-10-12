@@ -1,8 +1,10 @@
 package Controlador;
 import AccesoADatos.*;
 import Modelo.*;
+import Modelo.Servicios.ServicioCliente;
 import Vista.Formularios.FormularioCliente;
 import Vista.VistaCliente;
+import Modelo.DTOs.ClienteDTO;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -13,28 +15,27 @@ public class ControladorCliente {
 
     ////////////////////////////////Instancias
     /// ///////////////////////////////////////
-    private final ServicioCliente servicioCliente;
+    private final ServicioCliente servicioCliente = new ServicioCliente();
     private final VistaCliente vistaCliente;
     private final ControladorMedicion controladorMedicion;
-    private final ServicioRegistroClases servicioRegistroClases;
+    private final DAORegistroClases DAORegistroClases;
     private Runnable accionAtras;
 
 
     //Constructor
 
     public ControladorCliente() {
-        this.servicioCliente = new ServicioCliente();
         this.vistaCliente = new VistaCliente();
         this.controladorMedicion = new ControladorMedicion();
-        this.servicioRegistroClases = new ServicioRegistroClases();
+        this.DAORegistroClases = new DAORegistroClases();
     }
 
 
     ////////////////////////////////////////FUNCIONES
     /// //////////////////////////////////////////////
-    public void registrarCliente() throws GlobalException {
+    public void registrarCliente() throws GlobalException, NoDataException {
         FormularioCliente formulario = new FormularioCliente();
-        boolean resultado = formulario.mostrarDialogo("Agregar Cliente"); // o "Modificar Cliente"
+        boolean resultado = formulario.mostrarDialogo("Agregar Cliente");
 
         if (!resultado) {
             return;
@@ -43,7 +44,6 @@ public class ControladorCliente {
             return;
         }
 
-        // El usuario hizo clic en OK, obtener los datos
         String cedula = formulario.getCedula();
         String nombre = formulario.getNombre();
         int telefono = formulario.getTelefono();
@@ -55,15 +55,13 @@ public class ControladorCliente {
         String instructorId = formulario.getInstructor();
         String sucursalCod = formulario.getSucursal();
 
-
-        //Construccion de cliente, agregar a BD
+        //se debe comprobar en servicio la existencia de la suscursal y el instructor
         ControladorInstructor controlInstructor = new ControladorInstructor();
         ControladorSucursal controladorSucursal = new ControladorSucursal();
-        Instructor instructor = controlInstructor.getServicioInstructor().buscarInstructor(instructorId);
-        Sucursal sucursal = controladorSucursal.getServicioSucursal().buscarSucursal(sucursalCod);
+        String instructor = controlInstructor.getServicioInstructor().buscarInstructor(instructorId);
+        String sucursal = controladorSucursal.getServicioSucursal().buscarSucursal(sucursalCod);
 
-
-        Cliente cliente = new Cliente.Builder()
+        ClienteDTO dto = new ClienteDTO.Builder()
                 .cedula(cedula)
                 .nombre(nombre)
                 .telefono(telefono)
@@ -75,20 +73,30 @@ public class ControladorCliente {
                 .instructor(instructor)
                 .sucursal(sucursal)
                 .build();
-
-        try {
-            servicioCliente.insertarCliente(cliente);
-            vistaCliente.getTablaCliente().add(cliente);
-        } catch (GlobalException | NoDataException e) {
-            throw new RuntimeException(e);
+        switch (servicioCliente.insertarClienteEnBD(dto)) {
+            case 0:
+                //exito
+                //muestra el cliente en la tabla
+                vistaCliente.getTablaCliente().add(dto);
+                refrescarTabla();
+            case 1:
+                vistaCliente.mostrarError("El cliente ya existe");
+                break;
+            case 2:
+                vistaCliente.mostrarError("El instructor no existe");
+                break;
+            case 3:
+                vistaCliente.mostrarError("La sucursal no existe");
+                break;
+            default:
+                vistaCliente.mostrarError("No se pudo registrar el cliente");
+                break;
         }
-
     }
 
-
-    public void modificarCliente() throws GlobalException, NoDataException {
+    public void modificarCliente() throws NoDataException, GlobalException {
         FormularioCliente formulario = new FormularioCliente();
-        boolean resultado = formulario.mostrarDialogo("Agregar Cliente"); // o "Modificar Cliente"
+        boolean resultado = formulario.mostrarDialogo("Modificar Cliente");
 
         if (!resultado) {
             return;
@@ -97,7 +105,6 @@ public class ControladorCliente {
             return;
         }
 
-        // El usuario hizo clic en OK, obtener los datos
         String cedula = formulario.getCedula();
         String nombre = formulario.getNombre();
         int telefono = formulario.getTelefono();
@@ -108,59 +115,45 @@ public class ControladorCliente {
         String instructorId = formulario.getInstructor();
         String sucursalCod = formulario.getSucursal();
 
+        ClienteDTO dto = new ClienteDTO.Builder()
+                .cedula(cedula)
+                .nombre(nombre)
+                .telefono(telefono)
+                .correo(correo)
+                .fechaNac(fechaNac)
+                .sexo(sexo)
+                .edad(edad)
+                .instructor(instructorId)
+                .sucursal(sucursalCod)
+                .build();
 
-        //creacion del cliente, actualizar BD
-
-        Cliente cliente = servicioCliente.buscarCliente(cedula);
-        cliente.setNombre(nombre);
-        cliente.setTelefono(telefono);
-        cliente.setCorreo(correo);
-        cliente.setFechaNac(fechaNac);
-        cliente.setSexo(sexo);
-        cliente.setEdad(edad);
-
-        cliente.setInstructor(new Instructor.Builder()
-                .cedula(instructorId).build()
-        );
-
-        cliente.setSucursal(new Sucursal.Builder()
-                .cod(sucursalCod).build());
-        vistaCliente.getTablaCliente().refrescarData(mostrarClientes());
-
-        try {
-            servicioCliente.actualizarCliente(cliente);
-            vistaCliente.getTablaCliente().add(cliente);
-        } catch (GlobalException e) {
-            throw new RuntimeException(e);
-
+        if (!servicioCliente.actualizarClienteEnBD(dto)) {
+            vistaCliente.mostrarError("No se pudo modificar el cliente. Verifique que la cédula exista.");
+            return;
         }
-
+        vistaCliente.mostrarMensaje("Exito", "Cliente modificado exitosamente.");
+        refrescarTabla();
     }
 
-
-    public boolean eliminarCliente() throws GlobalException, NoDataException {
+    public void eliminarCliente() throws GlobalException, NoDataException {
         String cedula = vistaCliente.pedirDato("Ingrese la cedula");
-        boolean seElimino = servicioCliente.eliminarCliente(cedula);
-        if (seElimino) {
-            vistaCliente.getTablaCliente().refrescarData(mostrarClientes());
-            return true;
+        if (!servicioCliente.eliminarClienteEnBD(cedula)) {
+            vistaCliente.mostrarError("Cedela inexistente.");
+            return;
         }
-        return false;
-
+        refrescarTabla();
     }
 
-    public Cliente buscarCliente(String cedula) throws GlobalException {
-        return servicioCliente.buscarCliente(cedula);
-
-    }
-
-    public ArrayList<Cliente> mostrarClientes() throws GlobalException, NoDataException {
-        return servicioCliente.listarClientes();
-
+    public void refrescarTabla() {
+        ArrayList<ClienteDTO> clientes = servicioCliente.obtenerClientesEnBD();
+        if (clientes == null || clientes.isEmpty()) {
+            return;
+        }
+        vistaCliente.getTablaCliente().refrescarData(clientes);
     }
 
     public ArrayList<Cliente> mostrarClientesPorInstructor(String cedulaInstructor) throws GlobalException {
-        return servicioCliente.listarClientesPorInstructor(cedulaInstructor);
+        return DAOCliente.listarClientesPorInstructor(cedulaInstructor);
 
     }
 
@@ -168,15 +161,16 @@ public class ControladorCliente {
         //obtener el texto
         String cedula = vistaCliente.pedirDato("Ingrese la cedula del cliente");
         //validar
+        if (cedula == null) {return;}
         if (cedula.isEmpty()) {
             vistaCliente.mostrarError("Debe ingresar una cedula valida");
             return;
         }
-        if(servicioCliente.buscarCliente(cedula) == null) {
-            vistaCliente.mostrarMensaje("Mensaje", "El cliente con la cedela ingresada no existe");
+        if(DAOCliente.buscarCliente(cedula) == null) {
+            vistaCliente.mostrarMensaje("Mensaje", "El cliente con la cedula ingresada no existe");
             return;
         }
-        ArrayList<ClaseGrupal> clases = servicioRegistroClases.buscarClasesSegunCliente(cedula);
+        ArrayList<ClaseGrupal> clases = DAORegistroClases.buscarClasesSegunCliente(cedula);
         if(clases.isEmpty()) {
             vistaCliente.mostrarMensaje("Mensaje", "El cliente no tiene clases matriculadas");
             return;
@@ -207,7 +201,7 @@ public class ControladorCliente {
                 {
                     try {
                         registrarCliente();
-                    } catch (GlobalException ex) {
+                    } catch (GlobalException | NoDataException ex) {
                         throw new RuntimeException(ex);
                     }
                 }
@@ -325,8 +319,8 @@ public class ControladorCliente {
 
     /// //////////////////////////////////////////////////////////////
 
-    public void agregarTodosLosClientes() throws NoDataException, GlobalException {
-        vistaCliente.getTablaCliente().refrescarData(mostrarClientes());
+    public void agregarTodosLosClientes() {
+        refrescarTabla();
     }
 
 

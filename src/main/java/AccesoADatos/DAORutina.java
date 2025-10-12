@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class ServicioRutina extends Servicio {
+public class DAORutina extends Conexion {
 
     private static final String insertarRutina = "{call insertarrutina(?, ?, ?, ?, ?, ?)}";
     private static final String modificarRutina = "{call modificarrutina(?, ?, ?, ?, ?, ?)}";
@@ -14,7 +14,7 @@ public class ServicioRutina extends Servicio {
     private static final String buscarRutina = "{?=call buscarrutina(?)}";
     private static final String listarRutinas = "{?= call listarrutina()}";
 
-    public ServicioRutina() {}
+    public DAORutina() {}
 
     public void insertarRutina(String cedula, Rutina rutina) throws GlobalException, NoDataException {
         conectar();

@@ -6,12 +6,11 @@ import Modelo.Instructor;
 import Modelo.Sucursal;
 import oracle.jdbc.internal.OracleTypes;
 import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class ServicioCliente extends Servicio {
+public class DAOCliente extends Conexion {
 
     private static final String insertarCliente = "{call insertarcliente(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
     private static final String actualizarCliente = "{call actualizarcliente(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
@@ -20,7 +19,7 @@ public class ServicioCliente extends Servicio {
     private static final String listarClientes = "{?= call listarcliente()}";
     private static final String listarClientesPorInstructor = "{?= call listarclientesinstructor(?)}";
 
-    public ServicioCliente() {}
+    public DAOCliente() {}
 
     public void insertarCliente(Cliente cliente) throws GlobalException, NoDataException {
         conectar();
@@ -179,9 +178,9 @@ public class ServicioCliente extends Servicio {
     public Cliente buscarCliente(String cedula) throws GlobalException {
         Cliente cliente = buscarClienteBD(cedula);
         String cedulaIns = cliente.getInstructor().getCedula();
-        ServicioInstructor servicioIns = new ServicioInstructor();
+        DAOInstructor servicioIns = new DAOInstructor();
         try {
-            Instructor instructor = servicioIns.buscarInstructor(cedulaIns);
+            String instructor = servicioIns.buscarInstructor(cedulaIns);
             cliente.setInstructor(instructor);
         } catch (GlobalException e) {
             throw new RuntimeException(e);

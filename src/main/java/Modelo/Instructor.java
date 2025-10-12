@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package Modelo;
+import Modelo.DTOs.InstructorDTO;
 
 /**
  *
@@ -39,7 +40,7 @@ public class Instructor {
         this.telef = telef;
         this.correo = correo;
         this.fechaNac = fechaNac;
-        this.especialidad = especialidad;
+        this.especialidad = especialidad != null ? new ArrayList<>(especialidad) : new ArrayList<>();
         this.codigoSucursal = CodigoSucursal;
     }
 
@@ -50,10 +51,9 @@ public class Instructor {
         this.telef = builder.telef;
         this.correo = builder.correo;
         this.fechaNac = builder.fechaNac;
-        this.especialidad = new ArrayList<>();
+        this.especialidad = builder.especialidad != null ? new ArrayList<>(builder.especialidad) : new ArrayList<>();
         this.codigoSucursal = builder.codigoSucursal;
     }
-
 
     public static class Builder{
         private String cedula;
@@ -100,8 +100,34 @@ public class Instructor {
         }
 
         public Instructor build() {
-            return new Instructor(cedula, nombreCom, telef, correo, fechaNac, especialidad, codigoSucursal);
+            return new Instructor(this);
         }
+    }
+
+    // Método para convertir de DTO a Entidad
+    public static Instructor fromDTO(InstructorDTO dto) {
+        Instructor instructor = new Instructor();
+        instructor.setCedula(dto.getCedula());
+        instructor.setNombreCom(dto.getNombreCom());
+        instructor.setTelef(dto.getTelef());
+        instructor.setCorreo(dto.getCorreo());
+        instructor.setFechaNac(dto.getFechaNac());
+        instructor.setCodigoSucursal(dto.getCodigoSucursal());
+        instructor.setEspecialidad(dto.getEspecialidad());
+        return instructor;
+    }
+
+    // Método para convertir de Entidad a DTO
+    public InstructorDTO toDTO() {
+        return new InstructorDTO.Builder()
+                .cedula(this.cedula)
+                .nombreCom(this.nombreCom)
+                .telef(this.telef)
+                .correo(this.correo)
+                .fechaNac(this.fechaNac)
+                .codigoSucursal(this.codigoSucursal)
+                .especialidad(this.especialidad)
+                .build();
     }
 
     // Getters y Setters
@@ -120,8 +146,8 @@ public class Instructor {
     public String getFechaNac() { return fechaNac; }
     public void setFechaNac(String fechaNac) { this.fechaNac = fechaNac; }
 
-    public ArrayList<String> getEspecialidad() { return especialidad; }
-    public void setEspecialidad(ArrayList<String> especialidad) { this.especialidad = especialidad; }
+    public ArrayList<String> getEspecialidad() { return new ArrayList<>(especialidad); }
+    public void setEspecialidad(ArrayList<String> especialidad) { this.especialidad = new ArrayList<>(especialidad); }
 
     public String getCodigoSucursal() { return codigoSucursal; }
     public void setCodigoSucursal(String codigoSucursal) { this.codigoSucursal = codigoSucursal; }
@@ -139,4 +165,3 @@ public class Instructor {
                 '}';
     }
 }
-

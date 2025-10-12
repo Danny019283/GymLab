@@ -2,7 +2,9 @@ package Controlador;
 
 import AccesoADatos.GlobalException;
 import AccesoADatos.NoDataException;
-import AccesoADatos.ServicioSucursal;
+import AccesoADatos.DAOSucursal;
+import Modelo.DTOs.SucursalDTO;
+import Modelo.Servicios.ServicioSucursal;
 import Modelo.Sucursal;
 import Vista.Formularios.FormularioSucursal;
 import Vista.VistaSucursal;
@@ -18,17 +20,13 @@ public class ControladorSucursal {
 
     public ControladorSucursal() {
         this.controladorClaseGrupal = new ControladorClaseGrupal();
-        this.servicioSucursal = new ServicioSucursal();
         this.vistaSucursal = new VistaSucursal();
-    }
-
-    public ServicioSucursal getServicioSucursal() {
-        return servicioSucursal;
+        this.servicioSucursal = new ServicioSucursal();
     }
 
     ////////////////////////////////////////FUNCIONES
     /////////////////////////////////////////////////
-    public void registrarSucursal() throws GlobalException {
+    public void registrarSucursal() throws GlobalException, NoDataException {
         FormularioSucursal formulario = new FormularioSucursal();
         boolean resultado = formulario.mostrarDialogo("Agregar Sucursal");
 
@@ -45,7 +43,7 @@ public class ControladorSucursal {
         String correo = formulario.getCorreo();
         int telef = formulario.getTelef();
 
-        Sucursal sucursal = new Sucursal.Builder()
+        SucursalDTO sucursal = new SucursalDTO.Builder()
                 .cod(cod)
                 .provi(provi)
                 .canton(canton)
@@ -53,12 +51,17 @@ public class ControladorSucursal {
                 .telef(telef)
                 .build();
 
-        try {
-            servicioSucursal.insertarSucursal(sucursal);
-            vistaSucursal.getTablaSucursal().add(sucursal);
-            vistaSucursal.mostrarToSting("Éxito", "Sucursal registrada correctamente");
-        } catch (GlobalException | NoDataException e) {
-            vistaSucursal.mostrarError("Error al registrar sucursal: " + e.getMessage());
+        switch (servicioSucursal.insertarSucursalEnBD(sucursal)) {
+            case 0:
+                vistaSucursal.getTablaSucursal().add(sucursal);
+                refrescarTabla();
+                break; // Éxito
+            case 1:
+                vistaSucursal.mostrarError("La sucursal ya existe");
+                return;
+            case 2:
+                vistaSucursal.mostrarError("Limite de sucursales alcanzado");
+                break;
         }
     }
 
@@ -76,7 +79,7 @@ public class ControladorSucursal {
         String correo = formulario.getCorreo();
         int telef = formulario.getTelef();
 
-        Sucursal sucursal = new Sucursal.Builder()
+        SucursalDTO sucursal = new SucursalDTO.Builder()
                 .cod(cod)
                 .provi(provi)
                 .canton(canton)
@@ -84,21 +87,15 @@ public class ControladorSucursal {
                 .telef(telef)
                 .build();
 
-        try {
-            servicioSucursal.modificarSucursal(sucursal);
-            vistaSucursal.getTablaSucursal().refrescarData(listarSucursales());
-            vistaSucursal.mostrarToSting("Éxito", "Sucursal modificada correctamente");
-        } catch (GlobalException e) {
-            vistaSucursal.mostrarError("Error al modificar sucursal: " + e.getMessage());
+        if(!servicioSucursal.actualizarSucursalEnBD(sucursal)) {
+            vistaSucursal.mostrarError("La sucursal no existe");
+            return;
         }
+        refrescarTabla();
     }
 
-    public Sucursal buscarSucursal(String cod) throws GlobalException {
-        return servicioSucursal.buscarSucursal(cod);
-    }
-
-    public ArrayList<Sucursal> listarSucursales() throws GlobalException, NoDataException {
-        return servicioSucursal.listarSucursales();
+    public void refrescarTabla() throws GlobalException, NoDataException {
+        vistaSucursal.getTablaSucursal().refrescarData(servicioSucursal.obtenerSucursalesEnBD());
     }
 
     ////////////////////////////////ActionListener/Handle
@@ -109,6 +106,8 @@ public class ControladorSucursal {
                 registrarSucursal();
             } catch (GlobalException ex) {
                 vistaSucursal.mostrarError("Error al registrar: " + ex.getMessage());
+            } catch (NoDataException ex) {
+                throw new RuntimeException(ex);
             }
         });
     }
@@ -159,7 +158,7 @@ public class ControladorSucursal {
     ///////////////////////////Cargar datos a la tabla
     //////////////////////////////////////////////////
     public void agregarTodasLasSucursales() throws NoDataException, GlobalException {
-        vistaSucursal.getTablaSucursal().refrescarData(listarSucursales());
+        refrescarTabla();
     }
 
     // Método para configurar el botón Atrás

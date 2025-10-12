@@ -7,15 +7,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class ServicioMedicion extends Servicio {
+public class DAOMedicion extends Conexion {
 
     private static final String insertarMedicion = "{call insertarmedicion(? ,? ,? ,? ,? ,? ,? ,? ,? ,?)}";
     private static final String modificarMedicion = "{call modificarmedicion(? ,? ,? ,? ,? ,? ,? ,? ,? ,?)}";
     private static final String eliminarMedicion = "{call eliminarmedicion(?)}";
     private static final String buscarMedicion = "{?=call buscarmedicion(?)}";
     private static final String listarMediciones = "{?= call listarmedicion()}";
+    private static final String eliminarMasAntigua = "{call eliminarmedicionmasvieja(?)}";
 
-    public ServicioMedicion() {}
+    public DAOMedicion() {}
 
     public void insertarMedicion(Medicion medicion) throws GlobalException, NoDataException {
         conectar();
@@ -89,6 +90,30 @@ public class ServicioMedicion extends Servicio {
         CallableStatement pstmt = null;
         try {
             pstmt = conexion.prepareCall(eliminarMedicion);
+            pstmt.setString(1, cedulaCliente);
+            int resultado = pstmt.executeUpdate();
+            if (resultado == 0) {
+                throw new NoDataException("No se realizo el borrado");
+            }
+        } catch (SQLException e) {
+            throw new GlobalException("Sentencia no valida");
+        } finally {
+            try {
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+                desconectar();
+            } catch (SQLException e) {
+                throw new GlobalException("Estatutos invalidos o nulos");
+            }
+        }
+    }
+
+    public void eliminarMasAntigua(String cedulaCliente) throws GlobalException, NoDataException {
+        conectar();
+        CallableStatement pstmt = null;
+        try {
+            pstmt = conexion.prepareCall(eliminarMasAntigua);
             pstmt.setString(1, cedulaCliente);
             int resultado = pstmt.executeUpdate();
             if (resultado == 0) {

@@ -10,11 +10,11 @@ import javax.swing.*;
 import java.util.ArrayList;
 
 public class ControladorMedicion {
-    private final ServicioMedicion servicioMedicion;
+    private final DAOMedicion DAOMedicion;
     private final VistaMedicion vistaMedicion;
 
     public ControladorMedicion() {
-        this.servicioMedicion = new ServicioMedicion();
+        this.DAOMedicion = new DAOMedicion();
         this.vistaMedicion = new VistaMedicion();
     }
 
@@ -26,7 +26,7 @@ public class ControladorMedicion {
         }
 
         try {
-            ArrayList<Medicion> mediciones = servicioMedicion.buscarMedicion(cedula);
+            ArrayList<Medicion> mediciones = DAOMedicion.buscarMedicion(cedula);
             vistaMedicion.getTablaMedicion().refrescarData(mediciones);
         } catch (GlobalException e) {
             vistaMedicion.mostrarError("Error al buscar mediciones: " + e.getMessage());
@@ -67,7 +67,7 @@ public class ControladorMedicion {
                     .fechaDeMedicion(formulario.getFecha())
                     .build();
 
-            servicioMedicion.insertarMedicion(medicion);
+            DAOMedicion.insertarMedicion(medicion);
             vistaMedicion.mostrarMensaje("Medición registrada exitosamente");
 
             // Refrescar búsqueda si ya se estaba mostrando este cliente

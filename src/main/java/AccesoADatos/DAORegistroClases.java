@@ -2,13 +2,14 @@ package AccesoADatos;
 
 import Modelo.Cliente;
 import Modelo.ClaseGrupal;
+import Modelo.Instructor;
 import oracle.jdbc.internal.OracleTypes;
 import java.sql.CallableStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class ServicioRegistroClases extends Servicio {
+public class DAORegistroClases extends Conexion {
 
     private static final String insertarClaseCliente = "{call insertarClaseCliente(?, ?)}";
     private static final String eliminarClaseCliente = "{call eliminarClaseCliente(?, ?)}";
@@ -17,30 +18,23 @@ public class ServicioRegistroClases extends Servicio {
     private static final String verificarCupoClase = "{?=call verificarCupoClase(?)}";
     private static final String verificarClasesCliente = "{?=call verificarClasesCliente(?)}";
 
-    public ServicioRegistroClases() {}
+    public DAORegistroClases() {}
 
     public void insertarClaseCliente(String codigoClase, String cedulaCliente) throws GlobalException, NoDataException {
         conectar();
         CallableStatement pstmt = null;
-
         try {
             pstmt = conexion.prepareCall(insertarClaseCliente);
             pstmt.setString(1, codigoClase);
             pstmt.setString(2, cedulaCliente);
-
             boolean resultado = pstmt.execute();
-            if (resultado) {
-                throw new NoDataException("No se realizó la inserción");
-            }
-
+            if (resultado) throw new NoDataException("No se realizó la inserción");
         } catch (SQLException e) {
             e.printStackTrace();
             throw new GlobalException("Error al insertar relación clase-cliente");
         } finally {
             try {
-                if (pstmt != null) {
-                    pstmt.close();
-                }
+                if (pstmt != null) pstmt.close();
                 desconectar();
             } catch (SQLException e) {
                 throw new GlobalException("Estatutos inválidos o nulos");
@@ -51,25 +45,18 @@ public class ServicioRegistroClases extends Servicio {
     public void eliminarClaseCliente(String codigoClase, String cedulaCliente) throws GlobalException, NoDataException {
         conectar();
         CallableStatement pstmt = null;
-
         try {
             pstmt = conexion.prepareCall(eliminarClaseCliente);
             pstmt.setString(1, codigoClase);
             pstmt.setString(2, cedulaCliente);
-
             int resultado = pstmt.executeUpdate();
-            if (resultado == 0) {
-                throw new NoDataException("No se realizó la eliminación");
-            }
-
+            if (resultado == 0) throw new NoDataException("No se realizó la eliminación");
         } catch (SQLException e) {
             e.printStackTrace();
             throw new GlobalException("Error al eliminar relación clase-cliente");
         } finally {
             try {
-                if (pstmt != null) {
-                    pstmt.close();
-                }
+                if (pstmt != null) pstmt.close();
                 desconectar();
             } catch (SQLException e) {
                 throw new GlobalException("Estatutos inválidos o nulos");
@@ -82,22 +69,22 @@ public class ServicioRegistroClases extends Servicio {
         ResultSet rs = null;
         ArrayList<ClaseGrupal> clases = new ArrayList<>();
         CallableStatement pstmt = null;
-
         try {
             pstmt = conexion.prepareCall(buscarClasesPorCliente);
             pstmt.registerOutParameter(1, OracleTypes.CURSOR);
             pstmt.setString(2, cedulaCliente);
             pstmt.execute();
-
             rs = (ResultSet) pstmt.getObject(1);
             while (rs.next()) {
                 clases.add(new ClaseGrupal(
                         rs.getString("codigo_clase"),
-                        rs.getInt("cupoMax"),
-                        rs.getInt("numSalon"),
+                        rs.getInt("cupomax"),
+                        rs.getInt("numsalon"),
                         rs.getString("especialidad"),
                         rs.getString("horario"),
-                        null // Instructor no se carga en esta consulta
+                        new Instructor.Builder()
+                                .cedula(rs.getString("cedula_instructor"))
+                                .build()
                 ));
             }
 
@@ -121,13 +108,11 @@ public class ServicioRegistroClases extends Servicio {
         ResultSet rs = null;
         ArrayList<Cliente> clientes = new ArrayList<>();
         CallableStatement pstmt = null;
-
         try {
             pstmt = conexion.prepareCall(buscarClientesPorClase);
             pstmt.registerOutParameter(1, OracleTypes.CURSOR);
             pstmt.setString(2, codigoClase);
             pstmt.execute();
-
             rs = (ResultSet) pstmt.getObject(1);
             while (rs.next()) {
                 clientes.add(new Cliente.Builder()
@@ -139,11 +124,10 @@ public class ServicioRegistroClases extends Servicio {
                         .sexo(rs.getString("sexo"))
                         .fechaInscrip(rs.getString("fechainscrip"))
                         .edad(rs.getInt("edad"))
-                        .instructor(null) // Instructor no se carga en esta consulta
-                        .sucursal(null)  // Sucursal no se carga en esta consulta
+                        .instructor(null)
+                        .sucursal(null)
                         .build());
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
             throw new GlobalException("Error al buscar clientes por clase");
@@ -163,15 +147,12 @@ public class ServicioRegistroClases extends Servicio {
         conectar();
         CallableStatement pstmt = null;
         int cuposDisponibles = 0;
-
         try {
             pstmt = conexion.prepareCall(verificarCupoClase);
             pstmt.registerOutParameter(1, OracleTypes.NUMBER);
             pstmt.setString(2, codigoClase);
             pstmt.execute();
-
             cuposDisponibles = pstmt.getInt(1);
-
         } catch (SQLException e) {
             e.printStackTrace();
             throw new GlobalException("Error al verificar cupo de clase");
@@ -190,15 +171,12 @@ public class ServicioRegistroClases extends Servicio {
         conectar();
         CallableStatement pstmt = null;
         int totalClases = 0;
-
         try {
             pstmt = conexion.prepareCall(verificarClasesCliente);
             pstmt.registerOutParameter(1, OracleTypes.NUMBER);
             pstmt.setString(2, cedulaCliente);
             pstmt.execute();
-
             totalClases = pstmt.getInt(1);
-
         } catch (SQLException e) {
             e.printStackTrace();
             throw new GlobalException("Error al verificar clases del cliente");

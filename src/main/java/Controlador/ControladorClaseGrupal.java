@@ -2,11 +2,10 @@ package Controlador;
 
 import AccesoADatos.GlobalException;
 import AccesoADatos.NoDataException;
-import AccesoADatos.ServicioRegistroClases;
-import AccesoADatos.ServicioClaseGrupal;
+import AccesoADatos.DAORegistroClases;
+import AccesoADatos.DAOClaseGrupal;
 import Modelo.ClaseGrupal;
 import Modelo.Cliente;
-import Modelo.Instructor;
 import Vista.Formularios.FormularioClaseGrupal;
 import Vista.Formularios.FormularioMatricula;
 import Vista.VistaClaseGrupal;
@@ -17,15 +16,15 @@ import java.util.ArrayList;
 public class ControladorClaseGrupal {
     ////////////////////////////////Instancias
     //////////////////////////////////////////
-    private final ServicioClaseGrupal servicioClaseGrupal;
-    private final ServicioRegistroClases servicioRegistroClases;
+    private final DAOClaseGrupal DAOClaseGrupal;
+    private final DAORegistroClases DAORegistroClases;
     private final VistaClaseGrupal vistaClaseGrupal;
     private Runnable accionAtras;
 
     //Constructor
     public ControladorClaseGrupal() {
-        this.servicioClaseGrupal = new ServicioClaseGrupal();
-        this.servicioRegistroClases = new ServicioRegistroClases();
+        this.DAOClaseGrupal = new DAOClaseGrupal();
+        this.DAORegistroClases = new DAORegistroClases();
         this.vistaClaseGrupal = new VistaClaseGrupal();
     }
 
@@ -51,7 +50,7 @@ public class ControladorClaseGrupal {
 
         // Validar que el instructor tenga la especialidad
         ControladorInstructor controlInstructor = new ControladorInstructor();
-        Instructor instructor = controlInstructor.buscarInstructor(instructorCedula);
+        String instructor = controlInstructor.buscarInstructor(instructorCedula);
 
         boolean coincide = false;
         for (int i = 0; i < instructor.getEspecialidad().size(); i++) {
@@ -68,7 +67,7 @@ public class ControladorClaseGrupal {
 
         ClaseGrupal claseGrupal = new ClaseGrupal(codigo, cupoMax, numSalon, especialidad, horario, instructor);
         try {
-            servicioClaseGrupal.insertarClaseGrupal(claseGrupal);
+            DAOClaseGrupal.insertarClaseGrupal(claseGrupal);
             vistaClaseGrupal.getTablaClaseGrupal().add(claseGrupal);
             vistaClaseGrupal.mostrarToSting("Éxito", "Clase grupal registrada correctamente");
         } catch (GlobalException | NoDataException e) {
@@ -94,7 +93,7 @@ public class ControladorClaseGrupal {
         String horario = formulario.getHorario();
         String instructorCedula = formulario.getInstructor();
 
-        ClaseGrupal claseGrupal = servicioClaseGrupal.buscarClaseGrupal(codigo);
+        ClaseGrupal claseGrupal = DAOClaseGrupal.buscarClaseGrupal(codigo);
         if (claseGrupal == null) {
             vistaClaseGrupal.mostrarError("No se encontró la clase con código: " + codigo);
             return;
@@ -106,11 +105,11 @@ public class ControladorClaseGrupal {
         claseGrupal.setHorario(horario);
 
         ControladorInstructor controlInstructor = new ControladorInstructor();
-        Instructor instructor = controlInstructor.buscarInstructor(instructorCedula);
+        String instructor = controlInstructor.buscarInstructor(instructorCedula);
         claseGrupal.setInstructor(instructor);
 
         try {
-            servicioClaseGrupal.modificarClaseGrupal(claseGrupal);
+            DAOClaseGrupal.modificarClaseGrupal(claseGrupal);
             vistaClaseGrupal.getTablaClaseGrupal().refrescarData(mostrarClasesGrupales());
             vistaClaseGrupal.mostrarToSting("Éxito", "Clase grupal modificada correctamente");
         } catch (GlobalException e) {
@@ -124,7 +123,7 @@ public class ControladorClaseGrupal {
             return false;
         }
 
-        boolean seElimino = servicioClaseGrupal.eliminarClaseGrupal(codigo);
+        boolean seElimino = DAOClaseGrupal.eliminarClaseGrupal(codigo);
         if (seElimino) {
             vistaClaseGrupal.getTablaClaseGrupal().refrescarData(mostrarClasesGrupales());
             vistaClaseGrupal.mostrarToSting("Éxito", "Clase grupal eliminada correctamente");
@@ -136,11 +135,11 @@ public class ControladorClaseGrupal {
     }
 
     public ClaseGrupal buscarClaseGrupal(String codigo) throws GlobalException {
-        return servicioClaseGrupal.buscarClaseGrupal(codigo);
+        return DAOClaseGrupal.buscarClaseGrupal(codigo);
     }
 
     public ArrayList<ClaseGrupal> mostrarClasesGrupales() throws GlobalException {
-        return servicioClaseGrupal.listarClasesGrupales();
+        return DAOClaseGrupal.listarClasesGrupales();
     }
 
     public void listarClientesPorClase() throws GlobalException {
@@ -149,7 +148,7 @@ public class ControladorClaseGrupal {
             return;
         }
 
-        ArrayList<Cliente> clientes = servicioRegistroClases.buscarClientesSegunClase(codigoClase);
+        ArrayList<Cliente> clientes = DAORegistroClases.buscarClientesSegunClase(codigoClase);
 
         if (clientes != null && !clientes.isEmpty()) {
             StringBuilder sb = new StringBuilder();
@@ -173,15 +172,15 @@ public class ControladorClaseGrupal {
         String cedula = formularioMatricula.getCedulaCliente();
         String codClase = formularioMatricula.getCodClase();
 
-        int clasesInscritas = servicioRegistroClases.verificarClasesCliente(cedula);
+        int clasesInscritas = DAORegistroClases.verificarClasesCliente(cedula);
         if (clasesInscritas >= 3) {
             return 1; //el cliente ya está inscrito en 3 clases
         }
-        int cuposDisponibles = servicioRegistroClases.verificarCupoClase(codClase);
+        int cuposDisponibles = DAORegistroClases.verificarCupoClase(codClase);
         if (cuposDisponibles <= 0) {
             return 2; //no hay cupo
         }
-        servicioRegistroClases.insertarClaseCliente(codClase, cedula);
+        DAORegistroClases.insertarClaseCliente(codClase, cedula);
         return 0; //se inserto con exito
     }
 

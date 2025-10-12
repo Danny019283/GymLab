@@ -8,7 +8,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ServicioInstructor extends Servicio {
+public class DAOInstructor extends Conexion {
 
     public static final String insertarInstructor = "{call insertar_instructor(?, ?, ?, ?, ?, ?, ?)}";
     public static final String actualizarInstructor = "{call actualizar_instructor(?, ?, ?, ?, ?, ?, ?)}";
@@ -17,7 +17,7 @@ public class ServicioInstructor extends Servicio {
     public static final String listarInstructores = "{? = call listar_instructores()}";
     public static final String obtenerEspecialidades = "{? = call obtener_especialidades(?)}";
 
-    public ServicioInstructor() {}
+    public DAOInstructor() {}
 
     public void insertarInstructor(Instructor instructor) throws GlobalException, NoDataException {
         conectar();
@@ -127,7 +127,7 @@ public class ServicioInstructor extends Servicio {
         conectar();
         CallableStatement pstmt = null;
         ResultSet rs = null;
-        Instructor instructor = null;
+        String instructor = null;
 
         try {
             pstmt = conexion.prepareCall(buscarInstructor);
@@ -139,7 +139,6 @@ public class ServicioInstructor extends Servicio {
 
             if (rs != null && rs.next()) {
                 // Obtener datos básicos
-                String cedulaInstructor = rs.getString("cedula");
                 String nombre = rs.getString("nombreCom");
                 int telefono = rs.getInt("telefono");
                 String correo = rs.getString("correo");
@@ -148,7 +147,7 @@ public class ServicioInstructor extends Servicio {
                 ArrayList<String> especialidades = obtenerEspecialidadesComoArrayList(cedula);
                 String codSucursal = rs.getString("cod_sucursal");
 
-                instructor = new Instructor(cedulaInstructor, nombre, telefono, correo, fechaNac, especialidades, codSucursal);
+                return new Instructor(cedula, nombre, telefono, correo, fechaNac, especialidades, codSucursal);
             }
 
         } catch (SQLException e) {
@@ -163,7 +162,7 @@ public class ServicioInstructor extends Servicio {
                 throw new GlobalException("Error al cerrar conexión");
             }
         }
-        return instructor;
+        return null;
     }
 
     // Método auxiliar para obtener especialidades como ArrayList

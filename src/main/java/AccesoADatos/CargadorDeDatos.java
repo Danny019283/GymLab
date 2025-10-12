@@ -41,9 +41,9 @@ public class CargadorDeDatos {
     }
 
     private void cargarSucursales() throws Exception {
-        ServicioSucursal servicio = new ServicioSucursal();
+        DAOSucursal servicio = new DAOSucursal();
 
-        ArrayList<Sucursal> sucursales = new ArrayList<>(Arrays.asList(
+        ArrayList<String> sucursales = new ArrayList<String>(Arrays.asList(
                 new Sucursal("SJ01", "San José", "Central", "sanjose@gym.com", 22220001),
                 new Sucursal("SJ02", "San José", "Escazú", "escazu@gym.com", 22220002),
                 new Sucursal("SJ03", "San José", "Curridabat", "curri@gym.com", 22220003),
@@ -51,7 +51,7 @@ public class CargadorDeDatos {
                 new Sucursal("HE01", "Heredia", "Central", "heredia@gym.com", 25520001)
         ));
 
-        for (Sucursal sucursal : sucursales) {
+        for (String sucursal : sucursales) {
             try {
                 servicio.insertarSucursal(sucursal);
                 System.out.println("Sucursal creada: " + sucursal.getCod());
@@ -62,9 +62,9 @@ public class CargadorDeDatos {
     }
 
     private void cargarInstructores() throws Exception {
-        ServicioInstructor servicio = new ServicioInstructor();
+        DAOInstructor servicio = new DAOInstructor();
 
-        ArrayList<Instructor> instructores = new ArrayList<>(Arrays.asList(
+        ArrayList<String> instructores = new ArrayList<String>(Arrays.asList(
                 new Instructor("101110111", "María Rodríguez", 88881111, "maria@gym.com",
                         "1985-03-15", new ArrayList<>(Arrays.asList("Yoga", "Pilates")), "SJ01"),
                 new Instructor("202220222", "Carlos Méndez", 88882222, "carlos@gym.com",
@@ -77,7 +77,7 @@ public class CargadorDeDatos {
                         "1992-09-18", new ArrayList<>(Arrays.asList("Danza", "Aeróbicos")), "HE01")
         ));
 
-        for (Instructor instructor : instructores) {
+        for (String instructor : instructores) {
             try {
                 servicio.insertarInstructor(instructor);
                 System.out.println("Instructor creado: " + instructor.getNombreCom());
@@ -88,7 +88,7 @@ public class CargadorDeDatos {
     }
 
     private void cargarClientes() throws Exception {
-        ServicioCliente servicio = new ServicioCliente();
+        DAOCliente servicio = new DAOCliente();
 
         ArrayList<Cliente> clientes = new ArrayList<>(Arrays.asList(
                 new Cliente("106540888", "Juan Pérez", 25, 88880001, "juan@email.com",
@@ -144,7 +144,7 @@ public class CargadorDeDatos {
     }
 
     private void cargarClasesGrupales() throws Exception {
-        ServicioClaseGrupal servicio = new ServicioClaseGrupal();
+        DAOClaseGrupal servicio = new DAOClaseGrupal();
 
         ArrayList<ClaseGrupal> clases = new ArrayList<>(Arrays.asList(
                 new ClaseGrupal("YOGA01", 20, 101, "Yoga", "Lun-Mie 7:00 AM",
@@ -176,11 +176,11 @@ public class CargadorDeDatos {
     }
 
     private void cargarMediciones() throws Exception {
-        ServicioMedicion servicio = new ServicioMedicion();
-        ServicioCliente servicioCliente = new ServicioCliente();
+        DAOMedicion servicio = new DAOMedicion();
+        DAOCliente DAOCliente = new DAOCliente();
 
         // Obtener clientes existentes
-        ArrayList<Cliente> clientes = servicioCliente.listarClientes();
+        ArrayList<Cliente> clientes = DAOCliente.listarClientes();
 
         for (int i = 0; i < Math.min(8, clientes.size()); i++) {
             Cliente cliente = clientes.get(i);
@@ -208,11 +208,11 @@ public class CargadorDeDatos {
     }
 
     private void cargarRutinas() throws Exception {
-        ServicioRutina servicio = new ServicioRutina();
-        ServicioCliente servicioCliente = new ServicioCliente();
+        DAORutina servicio = new DAORutina();
+        DAOCliente DAOCliente = new DAOCliente();
 
         // Obtener clientes existentes
-        ArrayList<Cliente> clientes = servicioCliente.listarClientes();
+        ArrayList<Cliente> clientes = DAOCliente.listarClientes();
 
         String[] ejerciciosPecho = {"Press de banca", "Press inclinado", "Fondos", "Aperturas"};
         String[] ejerciciosTriceps = {"Extensión tríceps", "Fondos paralelas", "Press cerrado"};
@@ -241,11 +241,11 @@ public class CargadorDeDatos {
     }
 
     private void matricularClientesEnClases() throws Exception {
-        ServicioRegistroClases servicio = new ServicioRegistroClases();
-        ServicioCliente servicioCliente = new ServicioCliente();
+        DAORegistroClases servicio = new DAORegistroClases();
+        DAOCliente DAOCliente = new DAOCliente();
 
         // Obtener clientes existentes
-        ArrayList<Cliente> clientes = servicioCliente.listarClientes();
+        ArrayList<Cliente> clientes = DAOCliente.listarClientes();
 
         String[] clases = {"YOGA01", "PILA01", "CROS01", "SPIN01", "BOXE01", "DANZ01", "FUNC01", "CARD01"};
 
@@ -256,7 +256,7 @@ public class CargadorDeDatos {
 
             try {
                 // Verificar si la clase existe primero
-                ServicioClaseGrupal servicioClase = new ServicioClaseGrupal();
+                DAOClaseGrupal servicioClase = new DAOClaseGrupal();
                 ClaseGrupal claseExistente = servicioClase.buscarClaseGrupal(clase);
 
                 if (claseExistente != null) {

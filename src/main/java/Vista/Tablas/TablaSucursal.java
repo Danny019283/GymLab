@@ -1,21 +1,22 @@
 package Vista.Tablas;
 
+import Modelo.DTOs.SucursalDTO;
+
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
-import Modelo.Sucursal;
 
 public class TablaSucursal extends AbstractTableModel {
     private final String[] cols = {"Código", "Provincia", "Cantón", "Correo", "Teléfono"};
-    private final List<Sucursal> data = new ArrayList<>();
+    private final List<SucursalDTO> data = new ArrayList<>();
 
-    public void refrescarData(List<Sucursal> sucursales) {
+    public void refrescarData(List<SucursalDTO> sucursales) {
         data.clear();
         data.addAll(sucursales);
         fireTableDataChanged();
     }
 
-    public void add(Sucursal sucursal) {
+    public void add(SucursalDTO sucursal) {
         data.add(sucursal);
         int fila = data.size() - 1;
         fireTableRowsInserted(fila, fila);
@@ -38,7 +39,7 @@ public class TablaSucursal extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        Sucursal sucursal = data.get(rowIndex);
+        SucursalDTO sucursal = data.get(rowIndex);
         return switch (columnIndex) {
             case 0 -> sucursal.getCod();
             case 1 -> sucursal.getProvi();

@@ -2,9 +2,12 @@ package Controlador;
 
 import AccesoADatos.GlobalException;
 import AccesoADatos.NoDataException;
-import AccesoADatos.ServicioInstructor;
+import AccesoADatos.DAOInstructor;
+import Modelo.DTOs.InstructorDTO;
 import Modelo.Instructor;
 import Modelo.Rutina;
+import Modelo.Servicios.ServicioInstructor;
+import Modelo.Servicios.ServicioRutina;
 import Vista.Formularios.FormularioAsignarRutina;
 import Vista.Formularios.FormularioInstructor;
 import Vista.VistaInstructor;
@@ -13,21 +16,14 @@ import javax.swing.*;
 import java.util.ArrayList;
 
 public class ControladorInstructor {
-
-    ////////////////////////////////Instancias
-    //////////////////////////////////////////
     private final ServicioInstructor servicioInstructor;
     private final VistaInstructor vistaInstructor;
     private Runnable accionAtras;
 
     //Constructor
     public ControladorInstructor() {
-        this.servicioInstructor = new ServicioInstructor();
         this.vistaInstructor = new VistaInstructor();
-    }
-
-    public ServicioInstructor getServicioInstructor() {
-        return servicioInstructor;
+        this.servicioInstructor = new ServicioInstructor();
     }
 
     ////////////////////////////////////////FUNCIONES DE NEGOCIO
@@ -51,7 +47,7 @@ public class ControladorInstructor {
             especialidades.add(esp.trim());
         }
 
-        Instructor instructor = new Instructor.Builder()
+        InstructorDTO dto = new InstructorDTO.Builder()
                 .cedula(formulario.getCedula())
                 .nombreCom(formulario.getNombreCom())
                 .telef(formulario.getTelefono())
@@ -61,12 +57,18 @@ public class ControladorInstructor {
                 .codigoSucursal(formulario.getCodigoSucursal())
                 .build();
 
-        try {
-            servicioInstructor.insertarInstructor(instructor);
-            vistaInstructor.mensaje("Éxito", "Instructor registrado correctamente");
-            vistaInstructor.getTablaInstructor().refrescarData(listarInstructores());
-        } catch (GlobalException | NoDataException e) {
-            throw new RuntimeException(e);
+        switch (servicioInstructor.insertarInstructorEnBD(dto)) {
+            case 0:
+                refrescarTabla();
+            case 1:
+                vistaInstructor.mostrarError("El instructor ya existe.");
+                break;
+            case 2:
+                vistaInstructor.mostrarError("La sucursal no existe.");
+                break;
+            default:
+                vistaInstructor.mostrarError("Error desconocido al insertar instructor.");
+                break;
         }
     }
 
@@ -87,7 +89,7 @@ public class ControladorInstructor {
             especialidades.add(esp.trim());
         }
 
-        Instructor instructor = new Instructor.Builder()
+        InstructorDTO instructor = new InstructorDTO.Builder()
                 .cedula(formulario.getCedula())
                 .nombreCom(formulario.getNombreCom())
                 .telef(formulario.getTelefono())
@@ -97,21 +99,18 @@ public class ControladorInstructor {
                 .codigoSucursal(formulario.getCodigoSucursal())
                 .build();
 
-        try {
-            servicioInstructor.actualizarInstructor(instructor);
-            vistaInstructor.mensaje("Éxito", "Instructor modificado correctamente");
-            vistaInstructor.getTablaInstructor().refrescarData(listarInstructores());
-        } catch (GlobalException e) {
-            throw new RuntimeException(e);
+        if (!servicioInstructor.actualizarInstructorEnBD(instructor)) {
+            vistaInstructor.mostrarError("El instructor no existe.");
         }
+        refrescarTabla();
     }
 
-    public Instructor buscarInstructor(String cedula) throws GlobalException {
-        return servicioInstructor.buscarInstructor(cedula);
-    }
-
-    public ArrayList<Instructor> listarInstructores() throws GlobalException {
-        return servicioInstructor.listarInstructores();
+    public void refrescarTabla() {
+        ArrayList<InstructorDTO> instructores = servicioInstructor.obtenerInstructoresEnBD();
+        if (instructores == null || instructores.isEmpty()) {
+            return;
+        }
+        vistaInstructor.getTablaInstructor().refrescarData(instructores);
     }
 
     public void asignarRutinaCliente() {
@@ -126,15 +125,16 @@ public class ControladorInstructor {
                 return;
             }
 
-            ControladorRutina controladorRutina = new ControladorRutina();
             String pecho = formulario.getPecho();
             String triceps = formulario.getTriceps();
             String biceps = formulario.getBiceps();
             String piernas = formulario.getPiernas();
             String espalda = formulario.getEspalda();
-            Rutina rutina = controladorRutina.crearRutina(pecho, triceps, biceps, piernas, espalda);
-            controladorRutina.asignarRutinaACliente(formulario.getCedulaCliente(), rutina);
-
+            Rutina rutina = new Rutina(pecho, triceps, biceps, piernas, espalda);
+            if(!servicioInstructor.asignarRutinaACliente(formulario.getCedulaCliente(), rutina)) {
+                vistaInstructor.mostrarError("El cliente no existe.");
+                return;
+            }
             vistaInstructor.mensaje("Éxito", "Rutina asignada correctamente al cliente");
 
         } catch (Exception ex) {
@@ -187,7 +187,7 @@ public class ControladorInstructor {
     /// //////////////////////////////////////////////////////////////
 
     public void agregarTodosLosInstructores() throws NoDataException, GlobalException {
-        vistaInstructor.getTablaInstructor().refrescarData(listarInstructores());
+        refrescarTabla();
     }
 
     ////////////////////////////////CONFIGURACIÓN DE VENTANA

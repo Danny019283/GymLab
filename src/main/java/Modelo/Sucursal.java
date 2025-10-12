@@ -4,6 +4,8 @@
  */
 package Modelo;
 
+import Modelo.DTOs.SucursalDTO;
+
 /**
  *
  * @author Danny
@@ -31,6 +33,15 @@ public class Sucursal {
         this.canton = canton;
         this.correo = correo;
         this.telef = telef;
+    }
+
+    // Constructor con Builder
+    public Sucursal(Builder builder) {
+        this.cod = builder.cod;
+        this.provi = builder.provi;
+        this.canton = builder.canton;
+        this.correo = builder.correo;
+        this.telef = builder.telef;
     }
 
     public static class Builder {
@@ -66,8 +77,30 @@ public class Sucursal {
         }
 
         public Sucursal build() {
-            return new Sucursal(cod, provi, canton, correo, telef);
+            return new Sucursal(this);
         }
+    }
+
+    // Método para convertir de DTO a Entidad
+    public static Sucursal fromDTO(SucursalDTO dto) {
+        Sucursal sucursal = new Sucursal();
+        sucursal.setCod(dto.getCod());
+        sucursal.setProvi(dto.getProvi());
+        sucursal.setCanton(dto.getCanton());
+        sucursal.setCorreo(dto.getCorreo());
+        sucursal.setTelef(dto.getTelef());
+        return sucursal;
+    }
+
+    // Método para convertir de Entidad a DTO
+    public SucursalDTO toDTO() {
+        return new SucursalDTO.Builder()
+                .cod(this.cod)
+                .provi(this.provi)
+                .canton(this.canton)
+                .correo(this.correo)
+                .telef(this.telef)
+                .build();
     }
 
     // Getters y Setters
@@ -97,5 +130,3 @@ public class Sucursal {
                 '}';
     }
 }
-
-

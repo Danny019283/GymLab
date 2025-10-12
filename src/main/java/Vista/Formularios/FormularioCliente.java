@@ -1,5 +1,7 @@
 package Vista.Formularios;
 
+import Modelo.DTOs.ClienteDTO;
+
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
@@ -98,6 +100,21 @@ public class FormularioCliente {
         }
 
         return true;
+    }
+
+    public ClienteDTO toDTO() {
+        return new ClienteDTO.Builder()
+                .cedula(getCedula())
+                .nombre(getNombre())
+                .telefono(getTelefono())
+                .correo(getCorreo())
+                .fechaNac(getFechaNac())
+                .sexo(getSexo())
+                .fechaInscrip(getFechaInscrip())
+                .edad(getEdad())
+                .instructor(getInstructor())
+                .sucursal(getSucursal())
+                .build();
     }
 
     // Métodos get para obtener los valores

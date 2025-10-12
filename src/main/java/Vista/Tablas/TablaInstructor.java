@@ -3,19 +3,21 @@ package Vista.Tablas;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
+
+import Modelo.DTOs.InstructorDTO;
 import Modelo.Instructor;
 
 public class TablaInstructor extends AbstractTableModel {
     private final String[] cols = {"Cédula", "Nombre Completo", "Teléfono", "Correo", "Fecha de Nacimiento", "Especialidades", "Código Sucursal"};
-    private final List<Instructor> data = new ArrayList<>();
+    private final List<InstructorDTO> data = new ArrayList<>();
 
-    public void refrescarData(List<Instructor> instructores) {
+    public void refrescarData(List<InstructorDTO> instructores) {
         data.clear();
         data.addAll(instructores);
         fireTableDataChanged();
     }
 
-    public void add(Instructor instructor) {
+    public void add(InstructorDTO instructor) {
         data.add(instructor);
         int fila = data.size() - 1;
         fireTableRowsInserted(fila, fila);

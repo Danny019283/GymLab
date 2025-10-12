@@ -8,7 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class ServicioClaseGrupal extends Servicio {
+public class DAOClaseGrupal extends Conexion {
 
     private static final String insertarClaseGrupal = "{call insertarclasegrupal(?, ?, ?, ?, ?, ?)}";
     private static final String modificarClaseGrupal = "{call modificarclasegrupal(?, ?, ?, ?, ?, ?)}";
@@ -16,7 +16,7 @@ public class ServicioClaseGrupal extends Servicio {
     private static final String buscarClaseGrupal = "{?=call buscarclasegrupal(?)}";
     private static final String listarClasesGrupales = "{?= call listarclasegrupal()}";
 
-    public ServicioClaseGrupal() {}
+    public DAOClaseGrupal() {}
 
     public void insertarClaseGrupal(ClaseGrupal claseGrupal) throws GlobalException, NoDataException {
         conectar();
@@ -154,7 +154,7 @@ public class ServicioClaseGrupal extends Servicio {
         String cedula = formularioMatricula.getCedulaCliente();
         String codClase = formularioMatricula.getCodClase();
 
-        ServicioRegistroClases servicioClase = new ServicioRegistroClases();
+        DAORegistroClases servicioClase = new DAORegistroClases();
         int clasesInscritas = servicioClase.verificarClasesCliente(cedula);
         if (clasesInscritas >= 3) {
             return 1; //el cliente ya está incrito en 3 clases

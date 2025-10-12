@@ -14,7 +14,7 @@ public class ClaseGrupal {
     private int numSalon;
     private String especialidad;
     private String horario;
-    private Instructor instructor;
+    private String instructor;
 
     // Constructor vacío
     public ClaseGrupal() {
@@ -28,7 +28,7 @@ public class ClaseGrupal {
 
     // Constructor con todos los atributos
     public ClaseGrupal(String codigo, int cupoMax, int numSalon,
-                       String especialidad, String horario, Instructor instructor) {
+                       String especialidad, String horario, String instructor) {
         this.codigo = codigo;
         this.cupoMax = cupoMax;
         this.numSalon = numSalon;
@@ -53,8 +53,8 @@ public class ClaseGrupal {
     public String getHorario() { return horario; }
     public void setHorario(String horario) { this.horario = horario; }
 
-    public Instructor getInstructor() { return instructor; }
-    public void setInstructor(Instructor instructor) { this.instructor = instructor; }
+    public String getInstructor() { return instructor; }
+    public void setInstructor(String instructor) { this.instructor = instructor; }
 
     @Override
     public String toString() {

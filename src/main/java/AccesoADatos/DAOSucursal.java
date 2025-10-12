@@ -8,7 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class ServicioSucursal extends Servicio {
+public class DAOSucursal extends Conexion {
 
     private static final String insertarSucursal = "{call insertarSucursal(?, ?, ?, ?, ?)}";
     private static final String modificarSucursal = "{call modificarSucursal(?, ?, ?, ?, ?)}";
@@ -16,7 +16,7 @@ public class ServicioSucursal extends Servicio {
     private static final String buscarSucursal = "{?=call buscarSucursal(?)}";
     private static final String listarSucursales = "{?= call listarSucursal()}";
 
-    public ServicioSucursal() {}
+    public DAOSucursal() {}
 
     public void insertarSucursal(Sucursal sucursal) throws GlobalException, NoDataException {
         conectar();
@@ -132,6 +132,7 @@ public class ServicioSucursal extends Servicio {
                         rs.getInt("telef")
                 );
             }
+            return sucursal;
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -145,7 +146,6 @@ public class ServicioSucursal extends Servicio {
                 throw new GlobalException("Estatutos inválidos o nulos");
             }
         }
-        return sucursal;
     }
 
     public ArrayList<Sucursal> listarSucursales() throws GlobalException, NoDataException {
@@ -169,6 +169,7 @@ public class ServicioSucursal extends Servicio {
                         rs.getInt("telef")
                 ));
             }
+            return sucursales;
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -181,36 +182,6 @@ public class ServicioSucursal extends Servicio {
             } catch (SQLException e) {
                 throw new GlobalException("Estatutos inválidos o nulos");
             }
-        }
-
-        return sucursales;
-    }
-
-    public String listarSucursalesString() throws GlobalException, NoDataException {
-        ArrayList<Sucursal> sucursales = listarSucursales();
-        return sucursales.toString();
-    }
-
-    public static void main(String[] args) {
-        ServicioSucursal ss = new ServicioSucursal();
-
-        // Prueba de inserción
-        Sucursal sucursal = new Sucursal("S001", "San José", "Central", "sucursal1@email.com", 22223333);
-
-        try {
-            ss.insertarSucursal(sucursal);
-            System.out.println("Sucursal insertada correctamente");
-
-            // Buscar sucursal
-            Sucursal encontrada = ss.buscarSucursal("S001");
-            System.out.println("Sucursal encontrada: " + encontrada);
-
-            // Listar todas las sucursales
-            ArrayList<Sucursal> sucursales = ss.listarSucursales();
-            System.out.println("Todas las sucursales: " + sucursales);
-
-        } catch (GlobalException | NoDataException e) {
-            e.printStackTrace();
         }
     }
 }
