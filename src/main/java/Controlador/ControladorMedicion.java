@@ -1,8 +1,10 @@
 package Controlador;
 
 import AccesoADatos.*;
+import Modelo.DTOs.MedicionDTO;
 import Modelo.Medicion;
 import Modelo.Cliente;
+import Modelo.Servicios.ServicioMedicion;
 import Vista.Formularios.FormularioMedicion;
 import Vista.VistaMedicion;
 
@@ -10,11 +12,11 @@ import javax.swing.*;
 import java.util.ArrayList;
 
 public class ControladorMedicion {
-    private final DAOMedicion DAOMedicion;
     private final VistaMedicion vistaMedicion;
+    private final ServicioMedicion servicioMedicion;
 
     public ControladorMedicion() {
-        this.DAOMedicion = new DAOMedicion();
+        this.servicioMedicion = new ServicioMedicion();
         this.vistaMedicion = new VistaMedicion();
     }
 
@@ -24,14 +26,15 @@ public class ControladorMedicion {
             vistaMedicion.mostrarError("Ingrese una cédula para buscar");
             return;
         }
-
         try {
-            ArrayList<Medicion> mediciones = DAOMedicion.buscarMedicion(cedula);
-            vistaMedicion.getTablaMedicion().refrescarData(mediciones);
+            ArrayList<MedicionDTO> mediciones = servicioMedicion.buscarHistorialDeMedicionEnBD(cedula);
+            refrescarMedicionnes(mediciones);
         } catch (GlobalException e) {
             vistaMedicion.mostrarError("Error al buscar mediciones: " + e.getMessage());
         }
     }
+
+
 
     public void registrarMedicion() {
         FormularioMedicion formulario = new FormularioMedicion();
@@ -43,19 +46,9 @@ public class ControladorMedicion {
         if(!formulario.validarDatos()) {
             return;
         }
-
         try {
-            // Buscar cliente
-            ControladorCliente controladorCliente = new ControladorCliente();
-            Cliente cliente = controladorCliente.buscarCliente(formulario.getCedula());
-
-            if (cliente == null) {
-                vistaMedicion.mostrarError("Cliente no encontrado");
-                return;
-            }
-
-            Medicion medicion = new Medicion.Builder()
-                    .cliente(cliente)
+            MedicionDTO medicion = new MedicionDTO.Builder()
+                    .cedulaCliente(formulario.getCedula())
                     .peso(formulario.getPeso())
                     .estatura(formulario.getEstatura())
                     .porcGrasa(formulario.getPorcGrasa())
@@ -67,14 +60,18 @@ public class ControladorMedicion {
                     .fechaDeMedicion(formulario.getFecha())
                     .build();
 
-            DAOMedicion.insertarMedicion(medicion);
-            vistaMedicion.mostrarMensaje("Medición registrada exitosamente");
-
-            // Refrescar búsqueda si ya se estaba mostrando este cliente
-            if (vistaMedicion.getTextoBusqueda().equals(formulario.getCedula())) {
-                buscarMedicionesPorCliente();
+            switch (servicioMedicion.insertarMedicionEnBD(medicion)){
+                case 0:
+                    vistaMedicion.mostrarMensaje("Medición registrada exitosamente");
+                    // Refrescar búsqueda si ya se estaba mostrando este cliente
+                    if (vistaMedicion.getTextoBusqueda().equals(formulario.getCedula())) {
+                        buscarMedicionesPorCliente();
+                    }
+                    break;
+                case 1:
+                    vistaMedicion.mostrarError("El cliente no existe");
+                    break;
             }
-
         } catch (Exception e) {
             vistaMedicion.mostrarError("Error al registrar medición: " + e.getMessage());
         }
@@ -86,24 +83,24 @@ public class ControladorMedicion {
             vistaMedicion.mostrarError("Seleccione una medición para generar reporte");
             return;
         }
-
+        boolean haceEjercicio = JOptionPane.showConfirmDialog(vistaMedicion,
+                "¿El cliente hace ejercicio regularmente?", "Reporte",
+                JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
         try {
-            Medicion medicion = vistaMedicion.getMedicionSeleccionada();
-            ControladorCliente controladorCliente = new ControladorCliente();
-            Cliente cliente = controladorCliente.buscarCliente(medicion.getCliente().getCedula());
-            medicion.setCliente(cliente);
-
-            boolean haceEjercicio = JOptionPane.showConfirmDialog(vistaMedicion,
-                    "¿El cliente hace ejercicio regularmente?", "Reporte",
-                    JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
-
-            String reporte = medicion.reporteDeMedicion(haceEjercicio);
+            MedicionDTO medicion = vistaMedicion.getMedicionSeleccionada();
+            String reporte = servicioMedicion.generarReporte(medicion, haceEjercicio);
             JOptionPane.showMessageDialog(vistaMedicion, reporte, "Reporte de Medición",
                     JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception e) {
             vistaMedicion.mostrarError("Error al generar reporte: " + e.getMessage());
         }
     }
+
+    public void refrescarMedicionnes(ArrayList<MedicionDTO> mediciones) {
+        vistaMedicion.getTablaMedicion().refrescarData(mediciones);
+    }
+
+    /////////////////////////////////////////////HANDLERS
 
     public void handleBuscar() {
         vistaMedicion.addBuscarListener(e -> buscarMedicionesPorCliente());

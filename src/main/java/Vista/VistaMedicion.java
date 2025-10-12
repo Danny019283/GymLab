@@ -1,5 +1,6 @@
 package Vista;
 
+import Modelo.DTOs.MedicionDTO;
 import Modelo.Medicion;
 import Vista.Tablas.TablaMedicion;
 
@@ -134,7 +135,7 @@ public class VistaMedicion extends JFrame {
         });
     }
 
-    public Medicion getMedicionSeleccionada() {
+    public MedicionDTO getMedicionSeleccionada() {
         int fila = tabla.getSelectedRow();
         if (fila != -1) {
             int modelRow = tabla.convertRowIndexToModel(fila);

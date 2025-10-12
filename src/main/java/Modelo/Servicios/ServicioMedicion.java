@@ -2,6 +2,7 @@ package Modelo.Servicios;
 
 import AccesoADatos.DAOMedicion;
 import AccesoADatos.GlobalException;
+import AccesoADatos.NoDataException;
 import Modelo.Cliente;
 import Modelo.DTOs.MedicionDTO;
 import Modelo.Medicion;
@@ -21,7 +22,7 @@ public class ServicioMedicion {
 
         Cliente cliente = servicioCliente.buscarClienteEnBD(dto.getCedulaCliente());
         if(cliente == null) {
-            return 1; // Medicion ya existe
+            return 1; // Cliente no existe
         }
 
         Medicion medicion = Medicion.fromDTO(dto, cliente);
@@ -34,10 +35,23 @@ public class ServicioMedicion {
         }
     }
 
-    public
+    public String generarReporte(MedicionDTO dto, boolean haceEjercicio) {
+        Cliente cliente = servicioCliente.buscarClienteEnBD(dto.getCedulaCliente());
+        Medicion medicion = Medicion.fromDTO(dto, cliente);
+        return medicion.reporteDeMedicion(haceEjercicio);
+    }
 
-    public ArrayList<Medicion> buscarHistorialDeMedicionEnBD(String clienteId) throws GlobalException {
-        return dao.buscarMedicion(clienteId);
+    public ArrayList<MedicionDTO> buscarHistorialDeMedicionEnBD(String clienteId) throws GlobalException {
+        ArrayList<MedicionDTO> medicionesDTO = new ArrayList<>();
+        try {
+            ArrayList<Medicion> mediciones = dao.buscarMedicion(clienteId);
+            for (Medicion medicion : mediciones) {
+                medicionesDTO.add(medicion.toDTO());
+            }
+            return medicionesDTO;
+        } catch (GlobalException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

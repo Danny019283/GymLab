@@ -1,5 +1,6 @@
 package Vista.Tablas;
 
+import Modelo.DTOs.MedicionDTO;
 import Modelo.Medicion;
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
@@ -8,15 +9,15 @@ import java.util.List;
 public class TablaMedicion extends AbstractTableModel {
     private final String[] cols = {"Cédula", "Peso", "Estatura", "% Grasa", "% Músculo",
             "% Grasa Vis", "Cintura", "Pecho", "Muslo", "Fecha"};
-    private final List<Medicion> data = new ArrayList<>();
+    private final List<MedicionDTO> data = new ArrayList<>();
 
-    public void refrescarData(List<Medicion> mediciones) {
+    public void refrescarData(List<MedicionDTO> mediciones) {
         data.clear();
         data.addAll(mediciones);
         fireTableDataChanged();
     }
 
-    public void add(Medicion medicion) {
+    public void add(MedicionDTO medicion) {
         data.add(medicion);
         int fila = data.size() - 1;
         fireTableRowsInserted(fila, fila);
@@ -28,9 +29,9 @@ public class TablaMedicion extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        Medicion medicion = data.get(rowIndex);
+        MedicionDTO medicion = data.get(rowIndex);
         return switch (columnIndex) {
-            case 0 -> medicion.getCliente().getCedula();
+            case 0 -> medicion.getCedulaCliente();
             case 1 -> medicion.getPeso();
             case 2 -> medicion.getEstatura();
             case 3 -> medicion.getPorcGrasa();
@@ -44,7 +45,7 @@ public class TablaMedicion extends AbstractTableModel {
         };
     }
 
-    public Medicion getMedicionAt(int rowIndex) {
+    public MedicionDTO getMedicionAt(int rowIndex) {
         if (rowIndex >= 0 && rowIndex < data.size()) {
             return data.get(rowIndex);
         }
