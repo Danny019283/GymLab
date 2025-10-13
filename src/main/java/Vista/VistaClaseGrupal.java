@@ -110,8 +110,9 @@ public class VistaClaseGrupal extends JFrame {
         return JOptionPane.showInputDialog(mensaje);
     }
 
-    public void mostrarToSting(String titulo, String mensaje) {
-        JOptionPane.showMessageDialog(this, mensaje, titulo, JOptionPane.INFORMATION_MESSAGE);
+    public void mostrarMensaje(String titulo, String mensaje){
+        VistaCliente vista = new VistaCliente();
+        JOptionPane.showMessageDialog(vista, mensaje, titulo, JOptionPane.INFORMATION_MESSAGE);
     }
 
     public void mostrarError(String mensaje) {

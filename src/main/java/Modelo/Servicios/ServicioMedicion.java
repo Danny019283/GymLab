@@ -10,25 +10,33 @@ import Modelo.Medicion;
 import java.util.ArrayList;
 
 public class ServicioMedicion {
-    private final DAOMedicion dao;
-    private final ServicioCliente servicioCliente;
+    private DAOMedicion dao;
+    private ServicioCliente servicioCliente;
 
-    public ServicioMedicion() {
-        this.dao = new DAOMedicion();
-        this.servicioCliente = new ServicioCliente();
+    private DAOMedicion getDao() {
+        if (dao == null) {
+            dao = new DAOMedicion();
+        }
+        return dao;
+    }
+
+    private ServicioCliente getServicioCliente() {
+        if (servicioCliente == null) {
+            servicioCliente = new ServicioCliente();
+        }
+        return servicioCliente;
     }
 
     public int insertarMedicionEnBD(MedicionDTO dto) throws GlobalException {
-
-        Cliente cliente = servicioCliente.buscarClienteEnBD(dto.getCedulaCliente());
+        Cliente cliente = getServicioCliente().buscarClienteEnBD(dto.getCedulaCliente());
         if(cliente == null) {
-            return 1; // Cliente no existe
+            return 1;
         }
 
         Medicion medicion = Medicion.fromDTO(dto, cliente);
         try {
-            dao.insertarMedicion(medicion);
-            dao.eliminarMasAntigua(dto.getCedulaCliente());
+            getDao().insertarMedicion(medicion);
+            getDao().eliminarMasAntigua(dto.getCedulaCliente());
             return 0;
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -36,7 +44,7 @@ public class ServicioMedicion {
     }
 
     public String generarReporte(MedicionDTO dto, boolean haceEjercicio) {
-        Cliente cliente = servicioCliente.buscarClienteEnBD(dto.getCedulaCliente());
+        Cliente cliente = getServicioCliente().buscarClienteEnBD(dto.getCedulaCliente());
         Medicion medicion = Medicion.fromDTO(dto, cliente);
         return medicion.reporteDeMedicion(haceEjercicio);
     }
@@ -44,7 +52,7 @@ public class ServicioMedicion {
     public ArrayList<MedicionDTO> buscarHistorialDeMedicionEnBD(String clienteId) throws GlobalException {
         ArrayList<MedicionDTO> medicionesDTO = new ArrayList<>();
         try {
-            ArrayList<Medicion> mediciones = dao.buscarMedicion(clienteId);
+            ArrayList<Medicion> mediciones = getDao().buscarMedicion(clienteId);
             for (Medicion medicion : mediciones) {
                 medicionesDTO.add(medicion.toDTO());
             }
@@ -53,5 +61,4 @@ public class ServicioMedicion {
             throw new RuntimeException(e);
         }
     }
-
 }

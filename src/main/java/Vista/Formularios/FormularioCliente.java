@@ -1,6 +1,7 @@
 package Vista.Formularios;
 
 import Modelo.DTOs.ClienteDTO;
+import Modelo.Instructor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -79,6 +80,18 @@ public class FormularioCliente {
         panel.add(campoPanel);
     }
 
+    public void llenarFormularioMod(ClienteDTO cliente) {
+        cedulaField.setText(cliente.getCedula());
+        nombreField.setText(cliente.getNombre());
+        telefonoField.setText(String.valueOf(cliente.getTelefono()));
+        correoField.setText(cliente.getCorreo());
+        fechaNacField.setText(cliente.getFechaNac());
+        sexoCombo.setSelectedItem(cliente.getSexo());
+        edadField.setText(String.valueOf(cliente.getEdad()));
+        instructorField.setText(cliente.getInstructor());
+        sucursalField.setText(cliente.getSucursal());
+    }
+
     public boolean validarDatos() {
         if (getCedula().isEmpty() || getNombre().isEmpty() || getCorreo().isEmpty() ||
                 getFechaNac().isEmpty() || getInstructor().isEmpty() || getSucursal().isEmpty()) {
@@ -100,21 +113,6 @@ public class FormularioCliente {
         }
 
         return true;
-    }
-
-    public ClienteDTO toDTO() {
-        return new ClienteDTO.Builder()
-                .cedula(getCedula())
-                .nombre(getNombre())
-                .telefono(getTelefono())
-                .correo(getCorreo())
-                .fechaNac(getFechaNac())
-                .sexo(getSexo())
-                .fechaInscrip(getFechaInscrip())
-                .edad(getEdad())
-                .instructor(getInstructor())
-                .sucursal(getSucursal())
-                .build();
     }
 
     // Métodos get para obtener los valores

@@ -72,9 +72,14 @@ public class DAORegistroClases extends Conexion {
         try {
             pstmt = conexion.prepareCall(buscarClasesPorCliente);
             pstmt.registerOutParameter(1, OracleTypes.CURSOR);
-            pstmt.setString(2, cedulaCliente);
+            pstmt.setString(2, cedulaCliente);  // Cambiado de 2 a 1
             pstmt.execute();
             rs = (ResultSet) pstmt.getObject(1);
+
+            if (rs == null) {
+                return clases; // Retorna lista vacía si no hay resultados
+            }
+
             while (rs.next()) {
                 clases.add(new ClaseGrupal(
                         rs.getString("codigo_clase"),
@@ -87,17 +92,16 @@ public class DAORegistroClases extends Conexion {
                                 .build()
                 ));
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new GlobalException("Error al buscar clases por cliente");
+            throw new GlobalException("Error al buscar clases por cliente: " + e.getMessage());
         } finally {
             try {
                 if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
                 desconectar();
             } catch (SQLException e) {
-                throw new GlobalException("Estatutos inválidos o nulos");
+                throw new GlobalException("Estatutos inválidos o nulos: " + e.getMessage());
             }
         }
         return clases;
@@ -111,12 +115,18 @@ public class DAORegistroClases extends Conexion {
         try {
             pstmt = conexion.prepareCall(buscarClientesPorClase);
             pstmt.registerOutParameter(1, OracleTypes.CURSOR);
-            pstmt.setString(2, codigoClase);
+            pstmt.setString(2, codigoClase);  // Cambiado de 2 a 1
             pstmt.execute();
             rs = (ResultSet) pstmt.getObject(1);
+
+            if (rs == null) {
+                return clientes; // Retorna lista vacía si no hay resultados
+            }
+
             while (rs.next()) {
+                // CORREGIDO: Usar los nombres de columnas exactos del SELECT
                 clientes.add(new Cliente.Builder()
-                        .cedula(rs.getString("cedula_cliente"))
+                        .cedula(rs.getString("cedula_cliente"))  // Cambiado de "cedula" a "cedula_cliente"
                         .nombre(rs.getString("nombre"))
                         .telefono(rs.getInt("telefono"))
                         .correo(rs.getString("correo"))
@@ -130,14 +140,14 @@ public class DAORegistroClases extends Conexion {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new GlobalException("Error al buscar clientes por clase");
+            throw new GlobalException("Error al buscar clientes por clase: " + e.getMessage());
         } finally {
             try {
                 if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
                 desconectar();
             } catch (SQLException e) {
-                throw new GlobalException("Estatutos inválidos o nulos");
+                throw new GlobalException("Estatutos inválidos o nulos: " + e.getMessage());
             }
         }
         return clientes;

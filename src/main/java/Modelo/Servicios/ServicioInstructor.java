@@ -10,19 +10,32 @@ import Modelo.Rutina;
 import java.util.ArrayList;
 
 public class ServicioInstructor {
-    DAOInstructor dao = new DAOInstructor();
-    ServicioRutina servicioRutina = new ServicioRutina();
+    private DAOInstructor dao;
+    private ServicioRutina servicioRutina;
+
+    private DAOInstructor getDao() {
+        if (dao == null) {
+            dao = new DAOInstructor();
+        }
+        return dao;
+    }
+
+    private ServicioRutina getServicioRutina() {
+        if (servicioRutina == null) {
+            servicioRutina = new ServicioRutina();
+        }
+        return servicioRutina;
+    }
 
     public int insertarInstructorEnBD(InstructorDTO dto) {
         Instructor instructor = Instructor.fromDTO(dto);
 
         if(buscarInstructorEnBD(instructor.getCedula()) != null) {
-            return 1; // Instructor ya existe
+            return 1;
         }
-        //comprobar existencia de sucursal\
 
         try {
-            dao.insertarInstructor(instructor);
+            getDao().insertarInstructor(instructor);
             return 0;
         } catch (GlobalException | NoDataException e) {
             throw new RuntimeException(e);
@@ -32,19 +45,19 @@ public class ServicioInstructor {
     public boolean actualizarInstructorEnBD(InstructorDTO dto) {
         Instructor instructor = Instructor.fromDTO(dto);
         if(buscarInstructorEnBD(instructor.getCedula()) == null) {
-            return false;// Instructor no existe
+            return false;
         }
         try {
-            dao.actualizarInstructor(instructor);
+            getDao().actualizarInstructor(instructor);
             return true;
         } catch (GlobalException | NoDataException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private Instructor buscarInstructorEnBD(String cedula) {
+    public Instructor buscarInstructorEnBD(String cedula) {
         try {
-            return dao.buscarInstructor(cedula);
+            return getDao().buscarInstructor(cedula);
         } catch (GlobalException e) {
             throw new RuntimeException(e);
         }
@@ -52,10 +65,10 @@ public class ServicioInstructor {
 
     public boolean eliminarInstructorEnBD(String cedula) {
         if(buscarInstructorEnBD(cedula) == null) {
-            return false;// Instructor no existe
+            return false;
         }
         try {
-            dao.eliminarInstructor(cedula);
+            getDao().eliminarInstructor(cedula);
             return true;
         } catch (GlobalException | NoDataException e) {
             throw new RuntimeException(e);
@@ -64,7 +77,7 @@ public class ServicioInstructor {
 
     public ArrayList<InstructorDTO> obtenerInstructoresEnBD() {
         try {
-            ArrayList<Instructor> instructores = dao.listarInstructores();
+            ArrayList<Instructor> instructores = getDao().listarInstructores();
             ArrayList<InstructorDTO> dtoList = new ArrayList<>();
             for (Instructor instructor : instructores) {
                 dtoList.add(instructor.toDTO());
@@ -77,9 +90,9 @@ public class ServicioInstructor {
 
     public boolean asignarRutinaACliente(String clienteId, Rutina rutina) throws NoDataException, GlobalException {
         if (buscarInstructorEnBD(clienteId) == null) {
-            return false; // Cliente no existe
+            return false;
         }
-        servicioRutina.insertarRutinaEnBD(clienteId, rutina);
+        getServicioRutina().insertarRutinaEnBD(clienteId, rutina);
         return true;
     }
 }

@@ -20,8 +20,8 @@ public class Cliente {
     private String sexo;
     private String fechaInscrip;
     private int edad;
-    private String instructor;
-    private String sucursal;
+    private Instructor instructor;
+    private Sucursal sucursal;
     private DAOMedicion mediciones;
 
     // Constructor vacío
@@ -42,7 +42,7 @@ public class Cliente {
     // Constructor con todos los atributos
     public Cliente(String cedula, String nombre, int edad, int telefono, String correo,
                    String fechaNac, String sexo, String fechaInscrip,
-                   String instructor, String sucursal) {
+                   Instructor instructor, Sucursal sucursal) {
         this.cedula = cedula;
         this.nombre = nombre;
         this.telefono = telefono;
@@ -66,7 +66,7 @@ public class Cliente {
         this.fechaInscrip = builder.fechaInscrip;
         this.edad = builder.edad;
         this.instructor = builder.instructor;
-        this.sucursal =builder.sucursal;
+        this.sucursal = builder.sucursal;
     }
 
     public static class Builder {
@@ -78,8 +78,8 @@ public class Cliente {
         private String sexo;
         private String fechaInscrip;
         private int edad;
-        private String instructor;
-        private String sucursal;
+        private Instructor instructor;
+        private Sucursal sucursal;
 
         public Builder cedula(String cedula) {
             this.cedula = cedula;
@@ -121,12 +121,12 @@ public class Cliente {
             return this;
         }
 
-        public Builder instructor(String instructor) {
+        public Builder instructor(Instructor instructor) {
             this.instructor = instructor;
             return this;
         }
 
-        public Builder sucursal(String sucursal) {
+        public Builder sucursal(Sucursal sucursal) {
             this.sucursal = sucursal;
             return this;
         }
@@ -136,6 +136,7 @@ public class Cliente {
         }
     }
 
+    // Método para convertir de DTO a Entidad
     public static Cliente fromDTO(ClienteDTO dto) {
         Cliente cliente = new Cliente();
         cliente.setCedula(dto.getCedula());
@@ -146,11 +147,11 @@ public class Cliente {
         cliente.setSexo(dto.getSexo());
         cliente.setFechaInscrip(dto.getFechaInscrip());
         cliente.setEdad(dto.getEdad());
-        cliente.setInstructor(dto.getInstructor());
-        cliente.setSucursal(dto.getSucursal());
+        cliente.setInstructor(new Instructor.Builder().cedula(dto.getInstructor()).build());
         return cliente;
     }
 
+    // Método para convertir de Entidad a DTO
     public ClienteDTO toDTO() {
         return new ClienteDTO.Builder()
                 .cedula(this.cedula)
@@ -161,8 +162,8 @@ public class Cliente {
                 .sexo(this.sexo)
                 .fechaInscrip(this.fechaInscrip)
                 .edad(this.edad)
-                .instructor(this.instructor)
-                .sucursal(this.sucursal)
+                .instructor(this.instructor.getCedula())
+                .sucursal(this.sucursal.getCod())
                 .build();
     }
 
@@ -191,21 +192,26 @@ public class Cliente {
     public int getEdad() { return edad; }
     public void setEdad(int edad) { this.edad = edad; }
 
-    public String getInstructor() { return instructor; }
-    public void setInstructor(String instructor) { this.instructor = instructor; }
+    public Instructor getInstructor() { return instructor; }
+    public void setInstructor(Instructor instructor) { this.instructor = instructor; }
 
-    public String getSucursal() {
+    public Sucursal getSucursal() {
         return sucursal;
     }
-    public void setSucursal(String sucursal) {
+    public void setSucursal(Sucursal sucursal) {
         this.sucursal = sucursal;
     }
+
+    public String getClienteInfo() {
+        return "nombre: " + nombre + ", cedula: " + cedula;
+    }
+
     @Override
     public String toString() {
         return "Cliente{" +
                 "cedula='" + cedula + '\'' +
                 ", nombre='" + nombre + '\'' +
-                ", telef=" + telefono +
+                ", telefono=" + telefono +
                 ", correo='" + correo + '\'' +
                 ", fechaNac='" + fechaNac + '\'' +
                 ", sexo='" + sexo + '\'' +

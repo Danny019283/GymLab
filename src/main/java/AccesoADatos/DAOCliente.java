@@ -180,7 +180,7 @@ public class DAOCliente extends Conexion {
         String cedulaIns = cliente.getInstructor().getCedula();
         DAOInstructor servicioIns = new DAOInstructor();
         try {
-            String instructor = servicioIns.buscarInstructor(cedulaIns);
+            Instructor instructor = servicioIns.buscarInstructor(cedulaIns);
             cliente.setInstructor(instructor);
         } catch (GlobalException e) {
             throw new RuntimeException(e);

@@ -29,6 +29,13 @@ public class TablaCliente extends AbstractTableModel{
         fireTableRowsInserted(fila, fila); //Notifica a todos los oyentes que se han insertado filas en la ultima posicion
     }
 
+    public ClienteDTO getClienteAt(int rowIndex) {
+        if (rowIndex >= 0 && rowIndex < data.size()) {
+            return data.get(rowIndex);
+        }
+        return null;
+    }
+
     //son metodos de un super tipo (propios de Table Model)
     @Override public int getRowCount() { return data.size(); }
     @Override public int getColumnCount() { return cols.length; }
@@ -46,8 +53,8 @@ public class TablaCliente extends AbstractTableModel{
             case 5 -> cliente.getSexo();
             case 6 -> cliente.getFechaInscrip();
             case 7 -> cliente.getEdad();
-            case 8 -> cliente.getInstructor().getCedula();
-            case 9 -> cliente.getSucursal().getCod();
+            case 8 -> cliente.getInstructor();
+            case 9 -> cliente.getSucursal();
             default -> "";
         };
     }

@@ -10,18 +10,40 @@ import Modelo.Rutina;
 import java.util.ArrayList;
 
 public class ServicioCliente {
-    DAOCliente dao = new DAOCliente();
+    private DAOCliente dao;
+    private ServicioRutina servicioRutina;
+    private ServicioClaseGrupal servicioClaseGrupal;
+
+    private DAOCliente getDao() {
+        if (dao == null) {
+            dao = new DAOCliente();
+        }
+        return dao;
+    }
+
+    private ServicioRutina getServicioRutina() {
+        if (servicioRutina == null) {
+            servicioRutina = new ServicioRutina();
+        }
+        return servicioRutina;
+    }
+
+    private ServicioClaseGrupal getServicioClaseGrupal() {
+        if (servicioClaseGrupal == null) {
+            servicioClaseGrupal = new ServicioClaseGrupal();
+        }
+        return servicioClaseGrupal;
+    }
 
     public int insertarClienteEnBD(ClienteDTO dto) throws GlobalException {
         Cliente cliente = Cliente.fromDTO(dto);
 
         if(buscarClienteEnBD(cliente.getCedula()) != null) {
-            return 1; // Cliente ya existe
+            return 1;
         }
-        //comprobar existencia de sucursal e instructor
 
         try {
-            dao.insertarCliente(cliente);
+            getDao().insertarCliente(cliente);
             return 0;
         } catch (GlobalException | NoDataException e) {
             throw new RuntimeException(e);
@@ -31,18 +53,19 @@ public class ServicioCliente {
     public boolean actualizarClienteEnBD(ClienteDTO dto) {
         Cliente cliente = Cliente.fromDTO(dto);
         if(buscarClienteEnBD(cliente.getCedula()) == null) {
-            return false;// Cliente no existe
+            return false;
         }
         try {
-            dao.actualizarCliente(cliente);
+            getDao().actualizarCliente(cliente);
             return true;
         } catch (GlobalException e) {
             throw new RuntimeException(e);
         }
     }
+
     public Cliente buscarClienteEnBD(String cedula) {
         try {
-            return dao.buscarCliente(cedula);
+            return getDao().buscarCliente(cedula);
         } catch (GlobalException e) {
             throw new RuntimeException(e);
         }
@@ -50,10 +73,10 @@ public class ServicioCliente {
 
     public boolean eliminarClienteEnBD(String cedula) {
         if(buscarClienteEnBD(cedula) == null) {
-            return false;// Cliente no existe
+            return false;
         }
         try {
-            dao.eliminarCliente(cedula);
+            getDao().eliminarCliente(cedula);
             return true;
         } catch (GlobalException e) {
             throw new RuntimeException(e);
@@ -63,7 +86,7 @@ public class ServicioCliente {
     public ArrayList<ClienteDTO> obtenerClientesEnBD() {
         ArrayList<ClienteDTO> clientesDTO = new ArrayList<>();
         try {
-            ArrayList<Cliente> clientes = dao.listarClientes();
+            ArrayList<Cliente> clientes = getDao().listarClientes();
             for (Cliente cliente : clientes) {
                 clientesDTO.add(cliente.toDTO());
             }
@@ -72,18 +95,8 @@ public class ServicioCliente {
         }
         return clientesDTO;
     }
-    public ArrayList<ClienteDTO> obtenerClientesPorInstructorEnBD(String cedulaInstructor) {
-        return null; //pendiente
+
+    public String obtenerClasesSegunCliente(String cedulaCliente) {
+        return getServicioClaseGrupal().obtenerClasesSegunCliente(cedulaCliente);
     }
-
-    public ArrayList<ArrayList<ClienteDTO>> obtenerClientesPorInstructorEnBD() {
-        return null;
-    }
-
-    public Rutina obtenerRutinaDeClienteEnBD(String cedulaCliente) {
-        return null; //pendiente
-    }
-
-
-
 }

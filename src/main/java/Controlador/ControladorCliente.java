@@ -2,6 +2,7 @@ package Controlador;
 import AccesoADatos.*;
 import Modelo.*;
 import Modelo.Servicios.ServicioCliente;
+import Modelo.Servicios.ServicioRutina;
 import Vista.Formularios.FormularioCliente;
 import Vista.VistaCliente;
 import Modelo.DTOs.ClienteDTO;
@@ -15,19 +16,22 @@ public class ControladorCliente {
 
     ////////////////////////////////Instancias
     /// ///////////////////////////////////////
-    private final ServicioCliente servicioCliente = new ServicioCliente();
+    private final ServicioCliente servicioCliente;
     private final VistaCliente vistaCliente;
     private final ControladorMedicion controladorMedicion;
-    private final DAORegistroClases DAORegistroClases;
+    private final ControladorClaseGrupal controladorClaseGrupal;
+    private final ServicioRutina servicioRutina;
     private Runnable accionAtras;
 
 
     //Constructor
 
     public ControladorCliente() {
+        this.servicioCliente = new ServicioCliente();
         this.vistaCliente = new VistaCliente();
         this.controladorMedicion = new ControladorMedicion();
-        this.DAORegistroClases = new DAORegistroClases();
+        this.controladorClaseGrupal = new ControladorClaseGrupal();
+        this.servicioRutina = new ServicioRutina();
     }
 
 
@@ -55,12 +59,6 @@ public class ControladorCliente {
         String instructorId = formulario.getInstructor();
         String sucursalCod = formulario.getSucursal();
 
-        //se debe comprobar en servicio la existencia de la suscursal y el instructor
-        ControladorInstructor controlInstructor = new ControladorInstructor();
-        ControladorSucursal controladorSucursal = new ControladorSucursal();
-        String instructor = controlInstructor.getServicioInstructor().buscarInstructor(instructorId);
-        String sucursal = controladorSucursal.getServicioSucursal().buscarSucursal(sucursalCod);
-
         ClienteDTO dto = new ClienteDTO.Builder()
                 .cedula(cedula)
                 .nombre(nombre)
@@ -70,8 +68,8 @@ public class ControladorCliente {
                 .sexo(sexo)
                 .fechaInscrip(fechaInscrip)
                 .edad(edad)
-                .instructor(instructor)
-                .sucursal(sucursal)
+                .instructor(instructorId)
+                .sucursal(sucursalCod)
                 .build();
         switch (servicioCliente.insertarClienteEnBD(dto)) {
             case 0:
@@ -95,7 +93,13 @@ public class ControladorCliente {
     }
 
     public void modificarCliente() throws NoDataException, GlobalException {
+        ClienteDTO clienteMod = vistaCliente.getClienteSeleccionado();
+        if (clienteMod == null) {
+            vistaCliente.mostrarError("Debe seleccionar un cliente de la tabla.");
+            return;
+        }
         FormularioCliente formulario = new FormularioCliente();
+        formulario.llenarFormularioMod(clienteMod);
         boolean resultado = formulario.mostrarDialogo("Modificar Cliente");
 
         if (!resultado) {
@@ -137,6 +141,12 @@ public class ControladorCliente {
 
     public void eliminarCliente() throws GlobalException, NoDataException {
         String cedula = vistaCliente.pedirDato("Ingrese la cedula");
+        if (cedula == null) {
+            return;
+        }
+        if (cedula.isEmpty()) {
+            return;
+        }
         if (!servicioCliente.eliminarClienteEnBD(cedula)) {
             vistaCliente.mostrarError("Cedela inexistente.");
             return;
@@ -152,46 +162,44 @@ public class ControladorCliente {
         vistaCliente.getTablaCliente().refrescarData(clientes);
     }
 
-    public ArrayList<Cliente> mostrarClientesPorInstructor(String cedulaInstructor) throws GlobalException {
-        return DAOCliente.listarClientesPorInstructor(cedulaInstructor);
-
-    }
-
     public void mostrarClasesSegunCliente() throws GlobalException {
         //obtener el texto
         String cedula = vistaCliente.pedirDato("Ingrese la cedula del cliente");
         //validar
-        if (cedula == null) {return;}
+        if (cedula == null) {
+            return;
+        }
         if (cedula.isEmpty()) {
             vistaCliente.mostrarError("Debe ingresar una cedula valida");
             return;
         }
-        if(DAOCliente.buscarCliente(cedula) == null) {
+        if (servicioCliente.buscarClienteEnBD(cedula) == null) {
             vistaCliente.mostrarMensaje("Mensaje", "El cliente con la cedula ingresada no existe");
             return;
         }
-        ArrayList<ClaseGrupal> clases = DAORegistroClases.buscarClasesSegunCliente(cedula);
-        if(clases.isEmpty()) {
-            vistaCliente.mostrarMensaje("Mensaje", "El cliente no tiene clases matriculadas");
+        String clases = servicioCliente.obtenerClasesSegunCliente(cedula);
+        if (clases.isEmpty()) {
+            vistaCliente.mostrarMensaje("Clases", "El cliente no está matriculado en ninguna clase.");
             return;
         }
-        vistaCliente.mostrarClases(clases);
+        vistaCliente.mostrarMensaje("Clases", clases);
     }
 
     public void verRutina() throws GlobalException {
         String cedula = vistaCliente.pedirDato("Ingrese la cedula del cliente");
-        ControladorRutina controladorRutina = new ControladorRutina();
-        Rutina rutina = controladorRutina.buscarRutina(cedula);
-
-        if (rutina != null) {
-            try {
-                vistaCliente.mostrarMensaje("Rutina: ", rutina.toString());
-                return;
-            } catch (Exception e) {
-                vistaCliente.mostrarError("Error al generar reporte: " + e.getMessage());
-            }
+        if (cedula == null) {
+            return;
         }
-        vistaCliente.mostrarMensaje("Error", "No tiene una rutina asignada");
+        if (cedula.isEmpty()) {
+            return;
+        }
+        Rutina rutina = servicioRutina.buscarRutinaEnBD(cedula);
+        if (rutina == null) {
+            vistaCliente.mostrarMensaje("Error", "El cliente no existe o no tiene una rutina asignada");
+            return;
+        }
+
+        vistaCliente.mostrarMensaje("Rutina", rutina.toString());
     }
 
     ////////////////////////////////ActionListener/Handle
@@ -281,23 +289,9 @@ public class ControladorCliente {
         this.vistaCliente.addMatricularListener(e ->
                 {
                     try {
-                        ControladorClaseGrupal controladorClaseGrupal = new ControladorClaseGrupal();
-                        int resultadoMatricula = controladorClaseGrupal.matricularCliente();
-                        if (resultadoMatricula == 1) {
-                            vistaCliente.mostrarError("El cliente ya esta inscrito a 2 clases.");
-                        } else if (resultadoMatricula == 2) {
-                            vistaCliente.mostrarError("No hay cupos disponibles en la clase");
-                        } else if (resultadoMatricula == 0) {
-                            vistaCliente.mostrarMensaje("Confimacion", "Cliente matriculado con exito.");
-                        }
-                    } catch (NoDataException ex) {
-
+                        controladorClaseGrupal.matricularCliente();
+                    } catch (NoDataException | GlobalException ex) {
                         throw new RuntimeException(ex);
-
-                    } catch (GlobalException ex) {
-
-                        throw new RuntimeException(ex);
-
                     }
                 }
         );

@@ -9,45 +9,47 @@ import Modelo.Sucursal;
 import java.util.ArrayList;
 
 public class ServicioSucursal {
-    DAOSucursal dao;
+    private DAOSucursal dao;
 
-    public ServicioSucursal() {
-        dao = new DAOSucursal();
+    private DAOSucursal getDao() {
+        if (dao == null) {
+            dao = new DAOSucursal();
+        }
+        return dao;
     }
 
     public int insertarSucursalEnBD(SucursalDTO dto) throws GlobalException, NoDataException {
-
         if (buscarSucursalEnBD(dto.getCod()) != null) {
-            return 1; // Sucursal ya existe
+            return 1;
         }
-        if (dao.listarSucursales().size() == 30) {
-            return 2; // Límite de sucursales alcanzado
+        if (getDao().listarSucursales().size() == 30) {
+            return 2;
         }
         Sucursal sucursal = Sucursal.fromDTO(dto);
         try {
-            dao.insertarSucursal(sucursal);
+            getDao().insertarSucursal(sucursal);
             return 0;
         } catch (GlobalException | NoDataException e) {
             throw new RuntimeException(e);
         }
     }
-public boolean actualizarSucursalEnBD(SucursalDTO dto) throws GlobalException {
+
+    public boolean actualizarSucursalEnBD(SucursalDTO dto) throws GlobalException {
         Sucursal sucursal = Sucursal.fromDTO(dto);
         if (buscarSucursalEnBD(sucursal.getCod()) == null) {
-            return false;// Sucursal no existe
+            return false;
         }
         try {
-            dao.modificarSucursal(sucursal);
+            getDao().modificarSucursal(sucursal);
             return true;
         } catch (GlobalException | NoDataException e) {
             throw new RuntimeException(e);
         }
     }
 
-
     public Sucursal buscarSucursalEnBD(String cod) throws GlobalException {
         try {
-            return dao.buscarSucursal(cod);
+            return getDao().buscarSucursal(cod);
         } catch (GlobalException e) {
             throw new RuntimeException(e);
         }
@@ -56,7 +58,7 @@ public boolean actualizarSucursalEnBD(SucursalDTO dto) throws GlobalException {
     public ArrayList<SucursalDTO> obtenerSucursalesEnBD() {
         ArrayList<SucursalDTO> sucursalesDTO = new ArrayList<>();
         try {
-            ArrayList<Sucursal> sucursales = dao.listarSucursales();
+            ArrayList<Sucursal> sucursales = getDao().listarSucursales();
             for (Sucursal sucursal : sucursales) {
                 sucursalesDTO.add(sucursal.toDTO());
             }

@@ -1,6 +1,8 @@
 package Vista;
 
 import Modelo.ClaseGrupal;
+import Modelo.DTOs.ClienteDTO;
+import Modelo.DTOs.MedicionDTO;
 import Vista.Tablas.TablaCliente;
 
 import javax.swing.*;
@@ -174,6 +176,15 @@ public class VistaCliente extends JFrame {
     public void addBuscarListener(ActionListener accion) {btnBuscarCedula.addActionListener(accion);}
 
     public void addListarClasesListener(ActionListener accion) {btnListarClases.addActionListener(accion);}
+
+    public ClienteDTO getClienteSeleccionado() {
+        int fila = tabla.getSelectedRow();
+        if (fila != -1) {
+            int modelRow = tabla.convertRowIndexToModel(fila);
+            return tblCliente.getClienteAt(modelRow);
+        }
+        return null;
+    }
 
     private void configurarBoton(JButton boton) {
         boton.setBackground(new Color(200, 200, 200)); // Gris claro

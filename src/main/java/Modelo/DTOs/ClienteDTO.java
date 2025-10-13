@@ -1,5 +1,7 @@
 package Modelo.DTOs;
 
+import Modelo.Instructor;
+
 /**
  *
  * @author Danny

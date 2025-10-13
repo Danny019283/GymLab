@@ -2,8 +2,6 @@ package Controlador;
 
 import AccesoADatos.*;
 import Modelo.DTOs.MedicionDTO;
-import Modelo.Medicion;
-import Modelo.Cliente;
 import Modelo.Servicios.ServicioMedicion;
 import Vista.Formularios.FormularioMedicion;
 import Vista.VistaMedicion;
@@ -102,13 +100,13 @@ public class ControladorMedicion {
 
     /////////////////////////////////////////////HANDLERS
 
-    public void handleBuscar() {
+    public void handlerBuscar() {
         vistaMedicion.addBuscarListener(e -> buscarMedicionesPorCliente());
     }
-    public void handleAgregar() {
+    public void handlerAgregar() {
         vistaMedicion.addAgregarListener(e -> registrarMedicion());
     }
-    public void handleReporte() {
+    public void handlerReporte() {
         vistaMedicion.addReporteListener(e -> generarReporte());
     }
 
@@ -136,8 +134,8 @@ public class ControladorMedicion {
 
     // Configurar todos los listeners en un solo método
     private void configurarListeners() {
-        handleAgregar();
-        handleBuscar();
-        handleReporte();
+        handlerAgregar();
+        handlerBuscar();
+        handlerReporte();
     }
 }

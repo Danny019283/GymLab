@@ -40,7 +40,7 @@ public class TablaInstructor extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        Instructor instructor = data.get(rowIndex);
+        InstructorDTO instructor = data.get(rowIndex);
         return switch (columnIndex) {
             case 0 -> instructor.getCedula();
             case 1 -> instructor.getNombreCom();

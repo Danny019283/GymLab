@@ -43,7 +43,7 @@ public class CargadorDeDatos {
     private void cargarSucursales() throws Exception {
         DAOSucursal servicio = new DAOSucursal();
 
-        ArrayList<String> sucursales = new ArrayList<String>(Arrays.asList(
+        ArrayList<Sucursal> sucursales = new ArrayList<>(Arrays.asList(
                 new Sucursal("SJ01", "San José", "Central", "sanjose@gym.com", 22220001),
                 new Sucursal("SJ02", "San José", "Escazú", "escazu@gym.com", 22220002),
                 new Sucursal("SJ03", "San José", "Curridabat", "curri@gym.com", 22220003),
@@ -51,7 +51,7 @@ public class CargadorDeDatos {
                 new Sucursal("HE01", "Heredia", "Central", "heredia@gym.com", 25520001)
         ));
 
-        for (String sucursal : sucursales) {
+        for (Sucursal sucursal : sucursales) {
             try {
                 servicio.insertarSucursal(sucursal);
                 System.out.println("Sucursal creada: " + sucursal.getCod());
@@ -64,7 +64,7 @@ public class CargadorDeDatos {
     private void cargarInstructores() throws Exception {
         DAOInstructor servicio = new DAOInstructor();
 
-        ArrayList<String> instructores = new ArrayList<String>(Arrays.asList(
+        ArrayList<Instructor> instructores = new ArrayList<>(Arrays.asList(
                 new Instructor("101110111", "María Rodríguez", 88881111, "maria@gym.com",
                         "1985-03-15", new ArrayList<>(Arrays.asList("Yoga", "Pilates")), "SJ01"),
                 new Instructor("202220222", "Carlos Méndez", 88882222, "carlos@gym.com",
@@ -77,7 +77,7 @@ public class CargadorDeDatos {
                         "1992-09-18", new ArrayList<>(Arrays.asList("Danza", "Aeróbicos")), "HE01")
         ));
 
-        for (String instructor : instructores) {
+        for (Instructor instructor : instructores) {
             try {
                 servicio.insertarInstructor(instructor);
                 System.out.println("Instructor creado: " + instructor.getNombreCom());
@@ -89,48 +89,42 @@ public class CargadorDeDatos {
 
     private void cargarClientes() throws Exception {
         DAOCliente servicio = new DAOCliente();
+        DAOInstructor daoInstructor = new DAOInstructor();
+        DAOSucursal daoSucursal = new DAOSucursal();
+
+        // Obtener instructores y sucursales reales de la base de datos
+        Instructor instructor1 = daoInstructor.buscarInstructor("101110111");
+        Instructor instructor2 = daoInstructor.buscarInstructor("202220222");
+        Instructor instructor3 = daoInstructor.buscarInstructor("303330333");
+        Instructor instructor4 = daoInstructor.buscarInstructor("404440444");
+        Instructor instructor5 = daoInstructor.buscarInstructor("505550555");
+
+        Sucursal sucursal1 = daoSucursal.buscarSucursal("SJ01");
+        Sucursal sucursal2 = daoSucursal.buscarSucursal("SJ02");
+        Sucursal sucursal3 = daoSucursal.buscarSucursal("AL01");
+        Sucursal sucursal4 = daoSucursal.buscarSucursal("HE01");
 
         ArrayList<Cliente> clientes = new ArrayList<>(Arrays.asList(
                 new Cliente("106540888", "Juan Pérez", 25, 88880001, "juan@email.com",
-                        "1998-05-20", "Masculino", "2024-01-15",
-                        new Instructor.Builder().cedula("101110111").build(),
-                        new Sucursal.Builder().cod("SJ01").build()),
+                        "1998-05-20", "Masculino", "2024-01-15", instructor1, sucursal1),
                 new Cliente("206650999", "María López", 30, 88880002, "maria@email.com",
-                        "1993-08-12", "Femenino", "2024-01-20",
-                        new Instructor.Builder().cedula("101110111").build(),
-                        new Sucursal.Builder().cod("SJ01").build()),
+                        "1993-08-12", "Femenino", "2024-01-20", instructor1, sucursal1),
                 new Cliente("307760111", "Pedro Sánchez", 22, 88880003, "pedro@email.com",
-                        "2001-12-03", "Masculino", "2024-02-01",
-                        new Instructor.Builder().cedula("202220222").build(),
-                        new Sucursal.Builder().cod("SJ01").build()),
+                        "2001-12-03", "Masculino", "2024-02-01", instructor2, sucursal1),
                 new Cliente("408870222", "Ana Martínez", 35, 88880004, "ana@email.com",
-                        "1988-03-25", "Femenino", "2024-02-05",
-                        new Instructor.Builder().cedula("202220222").build(),
-                        new Sucursal.Builder().cod("SJ02").build()),
+                        "1988-03-25", "Femenino", "2024-02-05", instructor2, sucursal2),
                 new Cliente("509980333", "Carlos González", 28, 88880005, "carlos@email.com",
-                        "1995-07-14", "Masculino", "2024-02-10",
-                        new Instructor.Builder().cedula("303330333").build(),
-                        new Sucursal.Builder().cod("SJ02").build()),
+                        "1995-07-14", "Masculino", "2024-02-10", instructor3, sucursal2),
                 new Cliente("601090444", "Sofía Hernández", 32, 88880006, "sofia@email.com",
-                        "1991-09-08", "Femenino", "2024-02-15",
-                        new Instructor.Builder().cedula("303330333").build(),
-                        new Sucursal.Builder().cod("SJ02").build()),
+                        "1991-09-08", "Femenino", "2024-02-15", instructor3, sucursal2),
                 new Cliente("702100555", "Diego Ramírez", 26, 88880007, "diego@email.com",
-                        "1997-11-30", "Masculino", "2024-02-20",
-                        new Instructor.Builder().cedula("404440444").build(),
-                        new Sucursal.Builder().cod("AL01").build()),
+                        "1997-11-30", "Masculino", "2024-02-20", instructor4, sucursal3),
                 new Cliente("803210666", "Laura Navarro", 29, 88880008, "laura@email.com",
-                        "1994-04-17", "Femenino", "2024-03-01",
-                        new Instructor.Builder().cedula("404440444").build(),
-                        new Sucursal.Builder().cod("AL01").build()),
+                        "1994-04-17", "Femenino", "2024-03-01", instructor4, sucursal3),
                 new Cliente("904320777", "Andrés Solís", 31, 88880009, "andres@email.com",
-                        "1992-06-22", "Masculino", "2024-03-05",
-                        new Instructor.Builder().cedula("505550555").build(),
-                        new Sucursal.Builder().cod("HE01").build()),
+                        "1992-06-22", "Masculino", "2024-03-05", instructor5, sucursal4),
                 new Cliente("105430888", "Carmen Muñoz", 27, 88880010, "carmen@email.com",
-                        "1996-10-11", "Femenino", "2024-03-10",
-                        new Instructor.Builder().cedula("505550555").build(),
-                        new Sucursal.Builder().cod("HE01").build())
+                        "1996-10-11", "Femenino", "2024-03-10", instructor5, sucursal4)
         ));
 
         for (Cliente cliente : clientes) {
@@ -145,24 +139,24 @@ public class CargadorDeDatos {
 
     private void cargarClasesGrupales() throws Exception {
         DAOClaseGrupal servicio = new DAOClaseGrupal();
+        DAOInstructor daoInstructor = new DAOInstructor();
+
+        // Obtener instructores reales de la base de datos
+        Instructor instructor1 = daoInstructor.buscarInstructor("101110111");
+        Instructor instructor2 = daoInstructor.buscarInstructor("202220222");
+        Instructor instructor3 = daoInstructor.buscarInstructor("303330333");
+        Instructor instructor4 = daoInstructor.buscarInstructor("404440444");
+        Instructor instructor5 = daoInstructor.buscarInstructor("505550555");
 
         ArrayList<ClaseGrupal> clases = new ArrayList<>(Arrays.asList(
-                new ClaseGrupal("YOGA01", 20, 101, "Yoga", "Lun-Mie 7:00 AM",
-                        new Instructor.Builder().cedula("101110111").build()),
-                new ClaseGrupal("PILA01", 15, 102, "Pilates", "Mar-Jue 8:00 AM",
-                        new Instructor.Builder().cedula("101110111").build()),
-                new ClaseGrupal("CROS01", 25, 201, "CrossFit", "Lun-Mie-Vie 6AM",
-                        new Instructor.Builder().cedula("202220222").build()),
-                new ClaseGrupal("SPIN01", 30, 202, "Spinning", "Lun-Vie 5:00 PM",
-                        new Instructor.Builder().cedula("303330333").build()),
-                new ClaseGrupal("BOXE01", 20, 301, "Boxeo", "Mar-Jue 7:00 PM",
-                        new Instructor.Builder().cedula("404440444").build()),
-                new ClaseGrupal("DANZ01", 25, 302, "Danza", "Lun-Mie 6:00 PM",
-                        new Instructor.Builder().cedula("505550555").build()),
-                new ClaseGrupal("FUNC01", 20, 103, "Funcional", "Mar-Jue 9:00 AM",
-                        new Instructor.Builder().cedula("202220222").build()),
-                new ClaseGrupal("CARD01", 35, 203, "Cardio", "Lun-Vie 7:00 AM",
-                        new Instructor.Builder().cedula("303330333").build())
+                new ClaseGrupal("YOGA01", 20, 101, "Yoga", "Lun-Mie 7:00 AM", instructor1),
+                new ClaseGrupal("PILA01", 15, 102, "Pilates", "Mar-Jue 8:00 AM", instructor1),
+                new ClaseGrupal("CROS01", 25, 201, "CrossFit", "Lun-Mie-Vie 6:00 AM", instructor2),
+                new ClaseGrupal("SPIN01", 30, 202, "Spinning", "Lun-Vie 5:00 PM", instructor3),
+                new ClaseGrupal("BOXE01", 20, 301, "Boxeo", "Mar-Jue 7:00 PM", instructor4),
+                new ClaseGrupal("DANZ01", 25, 302, "Danza", "Lun-Mie 6:00 PM", instructor5),
+                new ClaseGrupal("FUNC01", 20, 103, "Funcional", "Mar-Jue 9:00 AM", instructor2),
+                new ClaseGrupal("CARD01", 35, 203, "Cardio", "Lun-Vie 7:00 AM", instructor3)
         ));
 
         for (ClaseGrupal clase : clases) {
@@ -177,10 +171,10 @@ public class CargadorDeDatos {
 
     private void cargarMediciones() throws Exception {
         DAOMedicion servicio = new DAOMedicion();
-        DAOCliente DAOCliente = new DAOCliente();
+        DAOCliente daoCliente = new DAOCliente();
 
         // Obtener clientes existentes
-        ArrayList<Cliente> clientes = DAOCliente.listarClientes();
+        ArrayList<Cliente> clientes = daoCliente.listarClientes();
 
         for (int i = 0; i < Math.min(8, clientes.size()); i++) {
             Cliente cliente = clientes.get(i);
@@ -209,10 +203,10 @@ public class CargadorDeDatos {
 
     private void cargarRutinas() throws Exception {
         DAORutina servicio = new DAORutina();
-        DAOCliente DAOCliente = new DAOCliente();
+        DAOCliente daoCliente = new DAOCliente();
 
         // Obtener clientes existentes
-        ArrayList<Cliente> clientes = DAOCliente.listarClientes();
+        ArrayList<Cliente> clientes = daoCliente.listarClientes();
 
         String[] ejerciciosPecho = {"Press de banca", "Press inclinado", "Fondos", "Aperturas"};
         String[] ejerciciosTriceps = {"Extensión tríceps", "Fondos paralelas", "Press cerrado"};
@@ -242,10 +236,10 @@ public class CargadorDeDatos {
 
     private void matricularClientesEnClases() throws Exception {
         DAORegistroClases servicio = new DAORegistroClases();
-        DAOCliente DAOCliente = new DAOCliente();
+        DAOCliente daoCliente = new DAOCliente();
 
         // Obtener clientes existentes
-        ArrayList<Cliente> clientes = DAOCliente.listarClientes();
+        ArrayList<Cliente> clientes = daoCliente.listarClientes();
 
         String[] clases = {"YOGA01", "PILA01", "CROS01", "SPIN01", "BOXE01", "DANZ01", "FUNC01", "CARD01"};
 
@@ -274,75 +268,9 @@ public class CargadorDeDatos {
         System.out.println("Total de matrículas creadas: " + matriculasCreadas);
     }
 
-    // Método para limpiar y recrear datos (opcional - usar con cuidado)
-    public void limpiarYRecrearDatos() {
-        try {
-            System.out.println("ADVERTENCIA: Esto eliminará todos los datos existentes");
-            System.out.println("¿Está seguro? (s/n)");
-            // En una aplicación real, aquí pedirías confirmación al usuario
-
-            // Primero eliminar matrículas
-            eliminarMatriculas();
-
-            // Luego eliminar otras entidades en orden inverso
-            eliminarRutinas();
-            eliminarMediciones();
-            eliminarClasesGrupales();
-            eliminarClientes();
-            eliminarInstructores();
-            eliminarSucursales();
-
-            System.out.println("Datos eliminados. Ahora recreando...");
-            cargarDatosPrueba();
-
-        } catch (Exception e) {
-            System.err.println("Error al limpiar datos: " + e.getMessage());
-        }
-    }
-
-    private void eliminarMatriculas() {
-        // Implementar lógica para eliminar matrículas si es necesario
-        System.out.println("Eliminando matrículas...");
-    }
-
-    private void eliminarRutinas() {
-        // Implementar lógica para eliminar rutinas si es necesario
-        System.out.println("Eliminando rutinas...");
-    }
-
-    private void eliminarMediciones() {
-        // Implementar lógica para eliminar mediciones si es necesario
-        System.out.println("Eliminando mediciones...");
-    }
-
-    private void eliminarClasesGrupales() {
-        // Implementar lógica para eliminar clases grupales si es necesario
-        System.out.println("Eliminando clases grupales...");
-    }
-
-    private void eliminarClientes() {
-        // Implementar lógica para eliminar clientes si es necesario
-        System.out.println("Eliminando clientes...");
-    }
-
-    private void eliminarInstructores() {
-        // Implementar lógica para eliminar instructores si es necesario
-        System.out.println("Eliminando instructores...");
-    }
-
-    private void eliminarSucursales() {
-        // Implementar lógica para eliminar sucursales si es necesario
-        System.out.println("Eliminando sucursales...");
-    }
-
     // Método principal para probar la carga de datos
     public static void main(String[] args) {
         CargadorDeDatos cargador = new CargadorDeDatos();
-
-        // Opción 1: Solo cargar datos (mantiene existentes)
         cargador.cargarDatosPrueba();
-
-        // Opción 2: Limpiar y recrear todo (descomentar si necesitas)
-        // cargador.limpiarYRecrearDatos();
     }
 }

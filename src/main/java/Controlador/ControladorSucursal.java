@@ -2,15 +2,12 @@ package Controlador;
 
 import AccesoADatos.GlobalException;
 import AccesoADatos.NoDataException;
-import AccesoADatos.DAOSucursal;
 import Modelo.DTOs.SucursalDTO;
 import Modelo.Servicios.ServicioSucursal;
-import Modelo.Sucursal;
 import Vista.Formularios.FormularioSucursal;
 import Vista.VistaSucursal;
 
 import javax.swing.*;
-import java.util.ArrayList;
 
 public class ControladorSucursal {
     private final ServicioSucursal servicioSucursal;
@@ -29,7 +26,6 @@ public class ControladorSucursal {
     public void registrarSucursal() throws GlobalException, NoDataException {
         FormularioSucursal formulario = new FormularioSucursal();
         boolean resultado = formulario.mostrarDialogo("Agregar Sucursal");
-
         if (!resultado) {
             return;
         }
@@ -72,6 +68,9 @@ public class ControladorSucursal {
         if (!resultado) {
             return;
         }
+        if(!formulario.validarDatos()) {
+            return;
+        }
 
         String cod = formulario.getCod();
         String provi = formulario.getProvi();
@@ -94,7 +93,7 @@ public class ControladorSucursal {
         refrescarTabla();
     }
 
-    public void refrescarTabla() throws GlobalException, NoDataException {
+    public void refrescarTabla() {
         vistaSucursal.getTablaSucursal().refrescarData(servicioSucursal.obtenerSucursalesEnBD());
     }
 

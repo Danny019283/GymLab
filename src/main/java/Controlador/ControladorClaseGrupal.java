@@ -2,10 +2,8 @@ package Controlador;
 
 import AccesoADatos.GlobalException;
 import AccesoADatos.NoDataException;
-import AccesoADatos.DAORegistroClases;
-import AccesoADatos.DAOClaseGrupal;
-import Modelo.ClaseGrupal;
-import Modelo.Cliente;
+import Modelo.DTOs.ClaseGrupalDTO;
+import Modelo.Servicios.ServicioClaseGrupal;
 import Vista.Formularios.FormularioClaseGrupal;
 import Vista.Formularios.FormularioMatricula;
 import Vista.VistaClaseGrupal;
@@ -16,19 +14,16 @@ import java.util.ArrayList;
 public class ControladorClaseGrupal {
     ////////////////////////////////Instancias
     //////////////////////////////////////////
-    private final DAOClaseGrupal DAOClaseGrupal;
-    private final DAORegistroClases DAORegistroClases;
+    private final ServicioClaseGrupal servicioClaseGrupal = new ServicioClaseGrupal();
     private final VistaClaseGrupal vistaClaseGrupal;
     private Runnable accionAtras;
 
     //Constructor
     public ControladorClaseGrupal() {
-        this.DAOClaseGrupal = new DAOClaseGrupal();
-        this.DAORegistroClases = new DAORegistroClases();
         this.vistaClaseGrupal = new VistaClaseGrupal();
     }
 
-    ////////////////////////////////////////FUNCIONES
+    ////////////////////////////////////////FUNCIONES DE NEGOCIO
     /////////////////////////////////////////////////
     public void registrarClaseGrupal() throws GlobalException {
         FormularioClaseGrupal formulario = new FormularioClaseGrupal();
@@ -48,34 +43,36 @@ public class ControladorClaseGrupal {
         String horario = formulario.getHorario();
         String instructorCedula = formulario.getInstructor();
 
-        // Validar que el instructor tenga la especialidad
-        ControladorInstructor controlInstructor = new ControladorInstructor();
-        String instructor = controlInstructor.buscarInstructor(instructorCedula);
+        ClaseGrupalDTO dto = new ClaseGrupalDTO.Builder()
+                .codigo(codigo)
+                .cupoMax(cupoMax)
+                .numSalon(numSalon)
+                .especialidad(especialidad)
+                .horario(horario)
+                .cedulaInstructor(instructorCedula)
+                .build();
 
-        boolean coincide = false;
-        for (int i = 0; i < instructor.getEspecialidad().size(); i++) {
-            if (instructor.getEspecialidad().get(i).equals(especialidad)) {
-                coincide = true;
+        switch (servicioClaseGrupal.insertarClaseGrupalEnBD(dto)) {
+            case 0:
+                refrescarTabla();
+                vistaClaseGrupal.mostrarMensaje("Éxito", "Clase grupal registrada correctamente");
                 break;
-            }
-        }
-
-        if (!coincide) {
-            vistaClaseGrupal.mostrarError("El instructor no tiene la especialidad requerida");
-            return;
-        }
-
-        ClaseGrupal claseGrupal = new ClaseGrupal(codigo, cupoMax, numSalon, especialidad, horario, instructor);
-        try {
-            DAOClaseGrupal.insertarClaseGrupal(claseGrupal);
-            vistaClaseGrupal.getTablaClaseGrupal().add(claseGrupal);
-            vistaClaseGrupal.mostrarToSting("Éxito", "Clase grupal registrada correctamente");
-        } catch (GlobalException | NoDataException e) {
-            vistaClaseGrupal.mostrarError("Error al registrar clase: " + e.getMessage());
+            case 1:
+                vistaClaseGrupal.mostrarError("El instructor no existe");
+                break;
+            case 2:
+                vistaClaseGrupal.mostrarError("La clase grupal ya existe");
+                break;
+            case 3:
+                vistaClaseGrupal.mostrarError("El instructor no tiene la especialidad requerida");
+                break;
+            default:
+                vistaClaseGrupal.mostrarError("No se pudo registrar la clase grupal");
+                break;
         }
     }
 
-    public void modificarClaseGrupal() throws GlobalException, NoDataException {
+    public void modificarClaseGrupal() throws GlobalException {
         FormularioClaseGrupal formulario = new FormularioClaseGrupal();
         boolean resultado = formulario.mostrarDialogo("Modificar Clase Grupal");
 
@@ -93,98 +90,103 @@ public class ControladorClaseGrupal {
         String horario = formulario.getHorario();
         String instructorCedula = formulario.getInstructor();
 
-        ClaseGrupal claseGrupal = DAOClaseGrupal.buscarClaseGrupal(codigo);
-        if (claseGrupal == null) {
-            vistaClaseGrupal.mostrarError("No se encontró la clase con código: " + codigo);
-            return;
-        }
+        ClaseGrupalDTO dto = new ClaseGrupalDTO.Builder()
+                .codigo(codigo)
+                .cupoMax(cupoMax)
+                .numSalon(numSalon)
+                .especialidad(especialidad)
+                .horario(horario)
+                .cedulaInstructor(instructorCedula)
+                .build();
 
-        claseGrupal.setCupoMax(cupoMax);
-        claseGrupal.setNumSalon(numSalon);
-        claseGrupal.setEspecialidad(especialidad);
-        claseGrupal.setHorario(horario);
-
-        ControladorInstructor controlInstructor = new ControladorInstructor();
-        String instructor = controlInstructor.buscarInstructor(instructorCedula);
-        claseGrupal.setInstructor(instructor);
-
-        try {
-            DAOClaseGrupal.modificarClaseGrupal(claseGrupal);
-            vistaClaseGrupal.getTablaClaseGrupal().refrescarData(mostrarClasesGrupales());
-            vistaClaseGrupal.mostrarToSting("Éxito", "Clase grupal modificada correctamente");
-        } catch (GlobalException e) {
-            vistaClaseGrupal.mostrarError("Error al modificar clase: " + e.getMessage());
+        switch (servicioClaseGrupal.actualizarClaseGrupalEnBD(dto)) {
+            case 0:
+                vistaClaseGrupal.mostrarMensaje("Éxito", "Clase grupal modificada correctamente");
+                refrescarTabla();
+                break;
+            case 1:
+                vistaClaseGrupal.mostrarError("El instructor no existe");
+                break;
+            case 2:
+                vistaClaseGrupal.mostrarError("La clase grupal no existe");
+                break;
+            default:
+                vistaClaseGrupal.mostrarError("No se pudo modificar la clase grupal");
+                break;
         }
     }
 
-    public boolean eliminarClaseGrupal() throws GlobalException, NoDataException {
+    public void eliminarClaseGrupal() throws GlobalException {
         String codigo = vistaClaseGrupal.pedirDato("Ingrese el código de la clase a eliminar");
         if (codigo == null || codigo.trim().isEmpty()) {
-            return false;
-        }
-
-        boolean seElimino = DAOClaseGrupal.eliminarClaseGrupal(codigo);
-        if (seElimino) {
-            vistaClaseGrupal.getTablaClaseGrupal().refrescarData(mostrarClasesGrupales());
-            vistaClaseGrupal.mostrarToSting("Éxito", "Clase grupal eliminada correctamente");
-            return true;
-        } else {
-            vistaClaseGrupal.mostrarError("No se pudo eliminar la clase");
-            return false;
-        }
-    }
-
-    public ClaseGrupal buscarClaseGrupal(String codigo) throws GlobalException {
-        return DAOClaseGrupal.buscarClaseGrupal(codigo);
-    }
-
-    public ArrayList<ClaseGrupal> mostrarClasesGrupales() throws GlobalException {
-        return DAOClaseGrupal.listarClasesGrupales();
-    }
-
-    public void listarClientesPorClase() throws GlobalException {
-        String codigoClase = vistaClaseGrupal.pedirDato("Ingrese el código de la clase");
-        if (codigoClase == null || codigoClase.trim().isEmpty()) {
             return;
         }
 
-        ArrayList<Cliente> clientes = DAORegistroClases.buscarClientesSegunClase(codigoClase);
-
-        if (clientes != null && !clientes.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("Clientes inscritos en la clase ").append(codigoClase).append(":\n\n");
-            for (Cliente cliente : clientes) {
-                sb.append("- ").append(cliente.getNombre()).append(" (").append(cliente.getCedula()).append(")\n");
-            }
-            vistaClaseGrupal.mostrarToSting("Clientes por Clase", sb.toString());
-        } else {
-            vistaClaseGrupal.mostrarToSting("Clientes por Clase", "No hay clientes inscritos en esta clase");
+        if (!servicioClaseGrupal.eliminarClaseGrupalEnBD(codigo)) {
+            vistaClaseGrupal.mostrarError("Clase inexistente.");
+            return;
         }
+        refrescarTabla();
+        vistaClaseGrupal.mostrarMensaje("Éxito", "Clase grupal eliminada correctamente");
     }
 
-    public int matricularCliente() throws NoDataException, GlobalException {
+    public void refrescarTabla() {
+        ArrayList<ClaseGrupalDTO> clases = servicioClaseGrupal.obtenerClasesGrupalesEnBD();
+        if (clases == null || clases.isEmpty()) {
+            return;
+        }
+        vistaClaseGrupal.getTablaClaseGrupal().refrescarData(clases);
+    }
+
+    public void listarClientesPorClase() {
+        String codigo = vistaClaseGrupal.pedirDato("Ingrese el código de la clase");
+        if (codigo == null || codigo.trim().isEmpty()) {
+            return;
+        }
+        String clientes = servicioClaseGrupal.listarClientesPorClase(codigo);
+        if (clientes.isEmpty()) {
+            vistaClaseGrupal.mostrarError("El cliente no tiene clases registradas");
+        }
+        vistaClaseGrupal.mostrarMensaje("Clases", clientes);
+    }
+
+    public void matricularCliente() throws NoDataException, GlobalException {
         FormularioMatricula formularioMatricula = new FormularioMatricula();
         boolean resultado = formularioMatricula.mostrarDialogo("Matricular Cliente");
         if (!resultado) {
-            return 3;
+            return;
+        }
+        if(!formularioMatricula.validarDatos()) {
+            vistaClaseGrupal.mostrarError("Todos los campos son obligatorios.");
+            return;
         }
 
         String cedula = formularioMatricula.getCedulaCliente();
         String codClase = formularioMatricula.getCodClase();
 
-        int clasesInscritas = DAORegistroClases.verificarClasesCliente(cedula);
-        if (clasesInscritas >= 3) {
-            return 1; //el cliente ya está inscrito en 3 clases
+        switch (servicioClaseGrupal.matricularClienteEnClase(codClase, cedula)) {
+            case 0:
+                vistaClaseGrupal.mostrarMensaje("Confirmación", "Cliente matriculado con éxito.");
+                break;
+            case 1:
+                vistaClaseGrupal.mostrarError("La clase no existe.");
+                break;
+            case 2:
+                vistaClaseGrupal.mostrarError("El cliente no existe.");
+                break;
+            case 3:
+                vistaClaseGrupal.mostrarError("No hay cupos disponibles en la clase.");
+                break;
+            case 4:
+                vistaClaseGrupal.mostrarError("El cliente ya está inscrito en 3 clases.");
+                break;
+            default:
+                vistaClaseGrupal.mostrarError("No se pudo matricular el cliente.");
+                break;
         }
-        int cuposDisponibles = DAORegistroClases.verificarCupoClase(codClase);
-        if (cuposDisponibles <= 0) {
-            return 2; //no hay cupo
-        }
-        DAORegistroClases.insertarClaseCliente(codClase, cedula);
-        return 0; //se inserto con exito
     }
 
-    ////////////////////////////////ActionListener/Handle
+    ////////////////////////////////ActionListener/Handler
     /////////////////////////////////////////////////////
     public void handlerRegistrar() {
         this.vistaClaseGrupal.addRegistrarListener(e -> {
@@ -200,7 +202,7 @@ public class ControladorClaseGrupal {
         this.vistaClaseGrupal.addModificarListener(e -> {
             try {
                 modificarClaseGrupal();
-            } catch (GlobalException | NoDataException ex) {
+            } catch (GlobalException ex) {
                 vistaClaseGrupal.mostrarError("Error al modificar: " + ex.getMessage());
             }
         });
@@ -210,7 +212,7 @@ public class ControladorClaseGrupal {
         this.vistaClaseGrupal.addEliminarListener(e -> {
             try {
                 eliminarClaseGrupal();
-            } catch (GlobalException | NoDataException ex) {
+            } catch (GlobalException ex) {
                 vistaClaseGrupal.mostrarError("Error al eliminar: " + ex.getMessage());
             }
         });
@@ -218,17 +220,12 @@ public class ControladorClaseGrupal {
 
     public void handlerListarClientes() {
         this.vistaClaseGrupal.addListarClientesListener(e -> {
-            try {
-                listarClientesPorClase();
-            } catch (GlobalException ex) {
-                vistaClaseGrupal.mostrarError("Error al listar clientes: " + ex.getMessage());
-            }
+            listarClientesPorClase();
         });
     }
 
     public void handlerBarraBusqueda() {
-        this.vistaClaseGrupal.addBuscarListener(e ->
-        {
+        this.vistaClaseGrupal.addBuscarListener(e -> {
             String codigo = vistaClaseGrupal.getTxtBuscarCodigo();
             if (codigo.isEmpty()) {
                 vistaClaseGrupal.getSorter().setRowFilter(null); // mostrar todo
@@ -238,7 +235,14 @@ public class ControladorClaseGrupal {
         });
     }
 
-    // Configurar para volver al menu anterior
+    /// ///////////////////////////Cargar datos a la tabla
+    /// //////////////////////////////////////////////////////////////
+    public void agregarTodasLasClasesGrupales() {
+        refrescarTabla();
+    }
+
+    ////////////////////////////////CONFIGURACIÓN DE VENTANA
+    ///////////////////////////////////////////////////////
     public void configurarBotonAtras(Runnable accionAtras) {
         this.accionAtras = accionAtras;
         vistaClaseGrupal.addAtrasListener(e -> accionAtras.run());
@@ -266,9 +270,4 @@ public class ControladorClaseGrupal {
         handlerListarClientes();
         handlerBarraBusqueda();
     }
-
-    public void agregarTodasLasClasesGrupales() throws NoDataException, GlobalException {
-        vistaClaseGrupal.getTablaClaseGrupal().refrescarData(mostrarClasesGrupales());
-    }
-
 }

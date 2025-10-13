@@ -6,17 +6,20 @@ import AccesoADatos.NoDataException;
 import Modelo.Rutina;
 
 public class ServicioRutina {
-    DAORutina dao = new DAORutina();
+    private DAORutina dao;
 
-    public ServicioRutina() {
-        dao = new DAORutina();
+    private DAORutina getDao() {
+        if (dao == null) {
+            dao = new DAORutina();
+        }
+        return dao;
     }
 
     public void insertarRutinaEnBD(String cedula, Rutina rutina) throws NoDataException, GlobalException {
-        dao.insertarRutina(cedula, rutina);
+        getDao().insertarRutina(cedula, rutina);
     }
 
     public Rutina buscarRutinaEnBD(String cedula) throws GlobalException {
-        return dao.buscarRutina(cedula);
+        return getDao().buscarRutina(cedula);
     }
 }

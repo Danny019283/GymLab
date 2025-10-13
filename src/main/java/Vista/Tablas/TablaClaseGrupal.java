@@ -1,7 +1,6 @@
 package Vista.Tablas;
 
-import Modelo.ClaseGrupal;
-
+import Modelo.DTOs.ClaseGrupalDTO;
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,15 +8,15 @@ import java.util.List;
 public class TablaClaseGrupal extends AbstractTableModel {
     private final String[] cols = {"Código", "Cupo Máximo", "Número Salon", "Especialidad",
             "Horario", "Instructor"};
-    private final List<ClaseGrupal> data = new ArrayList<>();
+    private final List<ClaseGrupalDTO> data = new ArrayList<>();
 
-    public void refrescarData(List<ClaseGrupal> clasesGrupales) {
+    public void refrescarData(List<ClaseGrupalDTO> clasesGrupales) {
         data.clear();
         data.addAll(clasesGrupales);
         fireTableDataChanged();
     }
 
-    public void add(ClaseGrupal claseGrupal) {
+    public void add(ClaseGrupalDTO claseGrupal) {
         data.add(claseGrupal);
         int fila = data.size() - 1;
         fireTableRowsInserted(fila, fila);
@@ -34,14 +33,14 @@ public class TablaClaseGrupal extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        ClaseGrupal claseGrupal = data.get(rowIndex);
+        ClaseGrupalDTO claseGrupal = data.get(rowIndex);
         return switch (columnIndex) {
             case 0 -> claseGrupal.getCodigo();
             case 1 -> claseGrupal.getCupoMax();
             case 2 -> claseGrupal.getNumSalon();
             case 3 -> claseGrupal.getEspecialidad();
             case 4 -> claseGrupal.getHorario();
-            case 5 -> claseGrupal.getInstructor().getCedula();
+            case 5 -> claseGrupal.getCedulaInstructor();
             default -> "";
         };
     }
